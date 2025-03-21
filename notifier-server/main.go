@@ -1,10 +1,7 @@
 package main
 
 import (
-	"bytes"
 	"database/sql"
-	"encoding/json"
-	"io"
 	"log"
 	"net/http"
 	"notifier/database"
@@ -80,19 +77,11 @@ func loginHandler(c *gin.Context) {
         return
     }
 
-    log.Print(loginRequest.Email)
-    log.Print(loginRequest.Password)
-
     user, err := database.GetUserByEmail(loginRequest.Email, db)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "User not found"})
         return
     }
-    log.Print(user.Email)
-    log.Printf("Stored hash length: %d", len(user.Password))
-    log.Printf("Stored hash bytes: %v", []byte(user.Password))
-    log.Printf("Input password length: %d", len(loginRequest.Password))
-    log.Printf("Input password bytes: %v", []byte(loginRequest.Password))
     
     if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginRequest.Password)); err != nil {
         log.Printf("Password comparison failed with error: %v", err)
@@ -138,23 +127,15 @@ func deleteHandler(deleteFunc func(itemId int, db *sql.DB) (string, error)) gin.
 func createHandler[T any](createFunc func(model T, db *sql.DB) (T, error)) gin.HandlerFunc {
     	return func(c *gin.Context) {
         var model T
-        body, _ := io.ReadAll(c.Request.Body)
-        log.Printf("Raw request body: %s", string(body))
-        c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
-        
 		if err := c.BindJSON(&model); err != nil {
-			log.Printf("JSON binding error: %v", err)
+			log.Print(err)
 			c.IndentedJSON(http.StatusInternalServerError, err)
 			return
 		}
-        
-        // Log the model as JSON to see all fields
-        modelJSON, _ := json.Marshal(model)
-        log.Printf("Model after binding: %s", string(modelJSON))
 
 		result, dbErr := createFunc(model, db)
 		if dbErr != nil {
-			log.Printf("Database error: %v", dbErr)
+			log.Print(dbErr)
 			c.IndentedJSON(http.StatusInternalServerError, dbErr)
 			return
 		}

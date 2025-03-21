@@ -21,6 +21,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const token = authService.getToken()
     if (token) {
       // TODO: Implement token validation and user info fetch
+      console.log('TOKEN: ', token)
     }
     setIsLoading(false)
   }, [])
