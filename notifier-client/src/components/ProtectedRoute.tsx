@@ -11,7 +11,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading } = useAuth()
   const location = useLocation()
 
-  console.log(isAuthenticated)
+  console.log('PROTECTED IS AUTH: ' + isAuthenticated.toString())
   if (isLoading) {
     return <div>Loading...</div> // You can replace this with a proper loading component
   }

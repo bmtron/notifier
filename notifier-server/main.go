@@ -7,6 +7,7 @@ import (
 	"notifier/database"
 	"notifier/models"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -23,6 +24,12 @@ type (
     TodoSet = models.TodoSet
 )
 
+type UserResponse struct {
+    ID    int    `json:"id"`
+    Email string `json:"email"`
+    Name  string `json:"name"`
+}
+
 func main() {
     log.Print("Starting up server...")
     db = database.SetupDb()
@@ -37,6 +44,7 @@ func main() {
 
     // Auth
     router.POST("/auth/login", loginHandler)
+    router.GET("/auth/me", authMiddleware(), getUserInfoHandler)
 
     // Users
     router.GET("/api/users/:id", getHandler(database.GetUser))
@@ -100,7 +108,16 @@ func loginHandler(c *gin.Context) {
         return
     }
 
-    c.JSON(http.StatusOK, gin.H{"token": tokenString, "user": user})
+    userResponse := UserResponse{
+        ID:    user.UserID,
+        Email: user.Email,
+        Name:  user.Username,
+    }
+
+    c.JSON(http.StatusOK, gin.H{
+        "token": tokenString,
+        "user": userResponse,
+    })
 }
 
 func deleteHandler(deleteFunc func(itemId int, db *sql.DB) (string, error)) gin.HandlerFunc {
@@ -189,4 +206,55 @@ func updateHandler[T any](updateFunc func(id int, model T, db *sql.DB) (T, error
             
             c.IndentedJSON(http.StatusOK, todoSet)
     }
+}
+
+func authMiddleware() gin.HandlerFunc {
+    return func(c *gin.Context) {
+        authHeader := c.GetHeader("Authorization")
+        if authHeader == "" {
+            c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
+            c.Abort()
+            return
+        }
+
+        // Extract token from "Bearer <token>"
+        tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+        token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+            return []byte("your-256-bit-secret"), nil
+        })
+
+        if err != nil || !token.Valid {
+            c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+            c.Abort()
+            return
+        }
+
+        claims, ok := token.Claims.(jwt.MapClaims)
+        if !ok {
+            c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
+            c.Abort()
+            return
+        }
+
+        userID := int(claims["user_id"].(float64))
+        c.Set("user_id", userID)
+        c.Next()
+    }
+}
+
+func getUserInfoHandler(c *gin.Context) {
+    userID := c.GetInt("user_id")
+    user, err := database.GetUser(userID, db)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user"})
+        return
+    }
+
+    userResponse := UserResponse{
+        ID:    user.UserID,
+        Email: user.Email,
+        Name:  user.Username,
+    }
+
+    c.JSON(http.StatusOK, userResponse)
 }

@@ -17,13 +17,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Check if user is already logged in
-    const token = authService.getToken()
-    if (token) {
-      // TODO: Implement token validation and user info fetch
-      console.log('TOKEN: ', token)
+    const initializeAuth = async () => {
+      try {
+        const token = authService.getToken()
+
+        if (token) {
+          const userInfo = await authService.getUserInfo()
+          setUser(userInfo)
+        }
+      } catch (error) {
+        console.error('Failed to initialize auth:', error)
+        // If token is invalid or expired, clear it
+        authService.logout()
+        setUser(null)
+      } finally {
+        setIsLoading(false)
+      }
     }
-    setIsLoading(false)
+
+    void initializeAuth()
   }, [])
 
   const login = async (credentials: LoginCredentials) => {

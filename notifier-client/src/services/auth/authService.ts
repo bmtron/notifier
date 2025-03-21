@@ -23,9 +23,9 @@ class AuthService {
 
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
-      console.log(credentials)
       const response = await axios.post<AuthResponse>(`${API_URL}/auth/login`, credentials)
       const { token, user } = response.data
+      console.log('TOKEN: ', token)
       this.setToken(token)
       return { token, user }
     } catch (error: unknown) {
@@ -52,6 +52,26 @@ class AuthService {
 
   isAuthenticated(): boolean {
     return !!this.token
+  }
+
+  async getUserInfo(): Promise<AuthResponse['user']> {
+    if (!this.token) {
+      throw new Error('No authentication token found')
+    }
+
+    try {
+      const response = await axios.get<AuthResponse['user']>(`${API_URL}/auth/me`, {
+        headers: {
+          Authorization: `Bearer ${this.token}`,
+        },
+      })
+      return response.data
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to fetch user info: ${error.message}`)
+      }
+      throw new Error('Failed to fetch user info')
+    }
   }
 }
 
