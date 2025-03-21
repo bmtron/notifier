@@ -1,7 +1,20 @@
 {
   "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }],
+  "compilerOptions": {
+    // Additional recommended options
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true, // Allow JavaScript files to be compiled
+    "checkJs": true, // Enable type checking for JavaScript files
+    "resolveJsonModule": true, // Allow importing JSON files
+    "incremental": true, // Enable incremental compilation
+    "baseUrl": "./", // Base directory to resolve non-relative module names
+    "paths": {
+      // Path aliases for cleaner imports
+      "@/*": ["src/*"]
+    },
+    "sourceMap": true, // Generate source maps for debugging
+    "esModuleInterop": true, // Enable better interop with CommonJS modules
+    "skipDefaultLibCheck": true // Skip type checking of default library declarations
+  }
 }

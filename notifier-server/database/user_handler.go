@@ -12,7 +12,8 @@ import (
 type User = models.User
 
 func CreateUser(user User, db *sql.DB) (User, error) {
-    user.Password = password_hasher(user.Password)
+    log.Print("USER PASSWORD: ", user.PlainPassword)
+    user.Password = password_hasher(user.PlainPassword)
     query := `
         INSERT INTO users (username, email, password_hash)
         VALUES ($1, $2, $3)
@@ -35,6 +36,22 @@ func GetUser(userID int, db *sql.DB) (User, error) {
         WHERE user_id = $1
         `
     err := db.QueryRow(query, userID).Scan(&user.UserID, &user.Username, &user.Email, &user.Password, &user.CreatedAt, &user.UpdatedAt)
+    if err != nil {
+        log.Print(err)
+        return user, err
+    }
+
+    return user, nil
+}
+
+func GetUserByEmail(email string, db *sql.DB) (User, error) {
+    var user User
+    query := `
+        SELECT user_id, username, email, password_hash, created_at, updated_at
+        FROM users
+        WHERE email = $1
+        `
+    err := db.QueryRow(query, email).Scan(&user.UserID, &user.Username, &user.Email, &user.Password, &user.CreatedAt, &user.UpdatedAt)
     if err != nil {
         log.Print(err)
         return user, err

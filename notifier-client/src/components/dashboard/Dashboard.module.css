@@ -1,0 +1,190 @@
+.dashboard {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  font-size: 2rem;
+  color: #2d3748;
+  margin: 0;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.welcome {
+  color: #4a5568;
+  font-size: 1.1rem;
+}
+
+.profileButton {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background-color: #edf2f7;
+  color: #4a5568;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.profileButton:hover {
+  background-color: #e2e8f0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.quickActions {
+  grid-column: 1 / -1;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.actionButtons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.actionButton {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  background-color: #4299e1;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.actionButton:hover {
+  background-color: #3182ce;
+}
+
+.todoSection,
+.notesSection,
+.remindersSection {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.todoSection h2,
+.notesSection h2,
+.remindersSection h2 {
+  color: #2d3748;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+}
+
+.todoList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.todoItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+  background-color: #f7fafc;
+}
+
+.todoItem input[type='checkbox'] {
+  width: 1.25rem;
+  height: 1.25rem;
+  cursor: pointer;
+}
+
+.completed {
+  text-decoration: line-through;
+  color: #718096;
+}
+
+.notesList,
+.remindersList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.noteCard,
+.reminderCard {
+  padding: 1rem;
+  border-radius: 6px;
+  background-color: #f7fafc;
+}
+
+.noteCard h3,
+.reminderCard h3 {
+  margin: 0 0 0.5rem 0;
+  color: #2d3748;
+}
+
+.noteCard p,
+.reminderCard p {
+  margin: 0;
+  color: #4a5568;
+}
+
+.timestamp {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #718096;
+}
+
+.reminderActions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.completeButton,
+.editButton {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+}
+
+.completeButton {
+  background-color: #48bb78;
+  color: white;
+}
+
+.completeButton:hover {
+  background-color: #38a169;
+}
+
+.editButton {
+  background-color: #edf2f7;
+  color: #4a5568;
+}
+
+.editButton:hover {
+  background-color: #e2e8f0;
+}

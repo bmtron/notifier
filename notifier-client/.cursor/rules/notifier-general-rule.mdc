@@ -1,0 +1,12 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+This project is called Notifier: it's aim is to be an all-in-one life organization application. 
+
+The main features that will get us to an acceptable 'MVP' (minimum viable product):
+Basic note-taking and organization
+Basic to-do list
+VERY basic reminders
