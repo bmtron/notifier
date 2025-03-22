@@ -1,6 +1,11 @@
 import { API_ENDPOINT_URL_DEBUG, API_KEY } from '../../utils/constants/constants'
 import { ErrorResponse } from '../../utils/helpers/ErrorResponse'
-import { GetTodoItemsResult, TodoSetWithItems } from '../../utils/models/TodoSetsWithItems'
+import {
+  GetTodoItemsResult,
+  TodoSetWithItems,
+  transformTodoSetWithItemsFromApi,
+  TodoSetApiResponse,
+} from '../../utils/models/TodoSetsWithItems'
 
 export const getTodoItems = async (userId: number): Promise<GetTodoItemsResult> => {
   const endpoint = API_ENDPOINT_URL_DEBUG + '/api/todo_sets/user/' + userId.toString()
@@ -22,18 +27,21 @@ export const getTodoItems = async (userId: number): Promise<GetTodoItemsResult> 
       },
     })
 
-    const data = (await response.json()) as TodoSetWithItems[] | ErrorResponse
+    const data = (await response.json()) as TodoSetApiResponse[] | ErrorResponse
 
     if (!response.ok) {
       return {
         success: false,
-        error: (data as ErrorResponse).message || 'Failed to create user',
+        error: 'message' in data ? data.message : 'Failed to get todo items',
       }
     }
 
+    const transformedData = (data as TodoSetApiResponse[]).map(transformTodoSetWithItemsFromApi)
+
+    console.log('transformedData', transformedData)
     return {
       success: true,
-      data: data as TodoSetWithItems[],
+      data: transformedData,
     }
   } catch (error) {
     return {
@@ -42,3 +50,6 @@ export const getTodoItems = async (userId: number): Promise<GetTodoItemsResult> 
     }
   }
 }
+
+// TODO: Consider moving the snake_case to PascalCase transformation to the backend API
+// for better consistency and maintainability across different clients

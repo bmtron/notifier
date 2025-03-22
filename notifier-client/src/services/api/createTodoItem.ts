@@ -1,7 +1,23 @@
-import { TodoItem, CreateTodoItemResult } from '../../utils/models/TodoItem'
+import {
+  TodoItem,
+  CreateTodoItemResult,
+  TodoItemApiResponse,
+  transformTodoItemFromApi,
+} from '../../utils/models/TodoItem'
 
 import { createItem } from './createItem'
 
 export const createTodoItem = async (todoItem: TodoItem): Promise<CreateTodoItemResult> => {
-  return createItem<TodoItem>(todoItem, '/api/todo_items')
+  const result = await createItem<TodoItem, TodoItemApiResponse>(todoItem, '/api/todo_items')
+  if (!result.success || !result.data) {
+    return {
+      success: false,
+      error: 'Failed to create todo set',
+    }
+  } else {
+    return {
+      data: transformTodoItemFromApi(result.data),
+      success: true,
+    }
+  }
 }

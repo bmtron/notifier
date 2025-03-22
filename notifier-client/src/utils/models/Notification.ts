@@ -20,3 +20,5 @@ export interface SystemNotification extends Notification {
   type: NotificationType.SYSTEM
   priority: 'HIGH' | 'MEDIUM' | 'LOW'
 }
+
+// lol idk what this is, I think this is just some sort of AI hallucination

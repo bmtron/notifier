@@ -66,6 +66,7 @@ class AuthService {
   }
 
   logout(): void {
+    console.log('logging out')
     localStorage.removeItem('token')
     this.token = null
   }

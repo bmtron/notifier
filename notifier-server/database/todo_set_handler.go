@@ -18,7 +18,7 @@ func CreateTodoSet(todoSet TodoSet, db *sql.DB) (TodoSet, error) {
         VALUES ($1, $2)
         RETURNING todo_set_id, user_id, title, created_at, updated_at
         `
-    err := db.QueryRow(query, todoSet.UserIDFromJson, todoSet.TitleFromJson).Scan(&todoSet.TodoSetID, &todoSet.UserID, &todoSet.Title, &todoSet.CreatedAt, &todoSet.UpdatedAt)
+    err := db.QueryRow(query, todoSet.UserIDFromJson, todoSet.Title).Scan(&todoSet.TodoSetID, &todoSet.UserID, &todoSet.Title, &todoSet.CreatedAt, &todoSet.UpdatedAt)
     if err != nil {
         log.Print(err)
         return todoSet, err
@@ -29,7 +29,7 @@ func CreateTodoSet(todoSet TodoSet, db *sql.DB) (TodoSet, error) {
 
 func GetAllTodoSetsAndItemsForUser(userID int, db *sql.DB) ([]TodoSetWithItems, error) {
     query := `
-        SELECT ts.todo_set_id, ts.user_id, ts.title, ts.deleted, ts.created_at, ts.updated_at,
+        SELECT ts.todo_set_id, ts.user_id, ts.title, ts.archived, ts.deleted, ts.created_at, ts.updated_at,
                ti.todo_item_id, ti.todo_set_id, ti.content, ti.completed, ti.deleted, ti.created_at, ti.updated_at
         FROM todo_set ts
         LEFT JOIN todo_item ti ON ts.todo_set_id = ti.todo_set_id
@@ -58,7 +58,7 @@ func GetAllTodoSetsAndItemsForUser(userID int, db *sql.DB) ([]TodoSetWithItems, 
         var todoItemUpdatedAt sql.NullTime
 
         err := rows.Scan(
-            &todoSet.TodoSetID, &todoSet.UserID, &todoSet.Title, &todoSet.Deleted, &todoSet.CreatedAt, &todoSet.UpdatedAt,
+            &todoSet.TodoSetID, &todoSet.UserID, &todoSet.Title, &todoSet.Archived, &todoSet.Deleted, &todoSet.CreatedAt, &todoSet.UpdatedAt,
             &todoItemID, &todoItem.TodoSetID, &todoItemContent, &todoItemCompleted, &todoItemDeleted, &todoItemCreatedAt, &todoItemUpdatedAt,
         )
         if err != nil {
@@ -76,11 +76,12 @@ func GetAllTodoSetsAndItemsForUser(userID int, db *sql.DB) ([]TodoSetWithItems, 
 
         // If we have a valid todo item (not NULL), add it to the todo set's items
         if todoItemID.Valid {
-            todoItem.TodoItemID = int(todoItemID.Int64)
-            todoItem.Content = todoItemContent.String
-            todoItem.Completed = todoItemCompleted.Bool
-            todoItem.Deleted = todoItemDeleted.Bool
-            todoItem.CreatedAt = todoItemCreatedAt.Time
+            id := int(todoItemID.Int64)
+            todoItem.TodoItemID = &id
+            todoItem.Content = &todoItemContent.String
+            todoItem.Completed = &todoItemCompleted.Bool
+            todoItem.Deleted = &todoItemDeleted.Bool
+            todoItem.CreatedAt = &todoItemCreatedAt.Time
             todoItem.UpdatedAt = &todoItemUpdatedAt.Time
             
             todoSetWithItems := todoSetMap[todoSet.TodoSetID]
@@ -101,11 +102,11 @@ func GetAllTodoSetsAndItemsForUser(userID int, db *sql.DB) ([]TodoSetWithItems, 
 func GetTodoSet(todoSetID int, db *sql.DB) (TodoSet, error) {
     var todoSet TodoSet
     query := `
-        SELECT todo_set_id, user_id, title, deleted, created_at, updated_at
+        SELECT todo_set_id, user_id, title, archived, deleted, created_at, updated_at
         FROM todo_set
         WHERE todo_set_id = $1
         `
-    err := db.QueryRow(query, todoSetID).Scan(&todoSet.TodoSetID, &todoSet.UserID, &todoSet.Title, &todoSet.Deleted, &todoSet.CreatedAt, &todoSet.UpdatedAt)
+    err := db.QueryRow(query, todoSetID).Scan(&todoSet.TodoSetID, &todoSet.UserID, &todoSet.Title, &todoSet.Archived, &todoSet.Deleted, &todoSet.CreatedAt, &todoSet.UpdatedAt)
     if err != nil {
         log.Print(err)
         return todoSet, err
@@ -117,11 +118,11 @@ func GetTodoSet(todoSetID int, db *sql.DB) (TodoSet, error) {
 func UpdateTodoSet(todoSetID int, updatedTodoSet TodoSet, db *sql.DB) (TodoSet, error) {
     query := `
         UPDATE todo_set
-        SET title = $1, updated_at = CURRENT_TIMESTAMP
-        WHERE todo_set_id = $2
-        RETURNING todo_set_id, title, deleted, created_at, updated_at
+        SET title = $1, archived = $2, updated_at = CURRENT_TIMESTAMP
+        WHERE todo_set_id = $3
+        RETURNING todo_set_id, title, archived, deleted, created_at, updated_at
         `
-    err := db.QueryRow(query, updatedTodoSet.Title, todoSetID).Scan(&updatedTodoSet.TodoSetID, &updatedTodoSet.Title, &updatedTodoSet.Deleted, &updatedTodoSet.CreatedAt, &updatedTodoSet.UpdatedAt)
+    err := db.QueryRow(query, updatedTodoSet.Title, updatedTodoSet.Archived, todoSetID).Scan(&updatedTodoSet.TodoSetID, &updatedTodoSet.Title, &updatedTodoSet.Archived, &updatedTodoSet.Deleted, &updatedTodoSet.CreatedAt, &updatedTodoSet.UpdatedAt)
     if err != nil {
         log.Print(err)
         return updatedTodoSet, err

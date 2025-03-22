@@ -1,20 +1,20 @@
 export interface User {
-  UserId: string | null
-  Username: string
-  Email: string
-  Password: string
+  userId: string | null
+  username: string
+  email: string
+  password: string
   CreatedAt: Date | null
-  UpdatedAt: Date | null
+  updatedAt: Date | null
 }
 
 export interface UserResponse {
-  UserId: string
-  Username: string
-  Email: string
-  CreatedAt: Date
-  UpdatedAt: Date
-  Token: string
-  Status: number
+  userId: string
+  username: string
+  email: string
+  createdAt: Date
+  updatedAt: Date
+  token: string
+  status: number
 }
 
 export interface CreateUserResult {

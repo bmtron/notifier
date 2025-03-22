@@ -1,16 +1,16 @@
 import { API_ENDPOINT_URL_DEBUG, API_KEY } from '../../utils/constants/constants'
 import { ErrorResponse } from '../../utils/helpers/ErrorResponse'
 
-export interface CreateItemResult<T> {
+export interface UpdateItemResult<T> {
   success: boolean
   data?: T
   error?: string
 }
 
-export const createItem = async <TInput, TResponse>(
+export const updateItem = async <TInput, TResponse = TInput>(
   item: TInput,
   endpoint: string
-): Promise<CreateItemResult<TResponse>> => {
+): Promise<UpdateItemResult<TResponse>> => {
   const fullEndpoint = API_ENDPOINT_URL_DEBUG + endpoint
   const token = localStorage.getItem('token')
 
@@ -21,9 +21,11 @@ export const createItem = async <TInput, TResponse>(
     }
   }
 
+  console.log('JSON_UPDATE_ITEM', JSON.stringify(item))
+
   try {
     const response = await fetch(fullEndpoint, {
-      method: 'POST',
+      method: 'PUT',
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -37,7 +39,7 @@ export const createItem = async <TInput, TResponse>(
     if (!response.ok) {
       return {
         success: false,
-        error: (data as ErrorResponse).message || `Failed to create item at ${endpoint}`,
+        error: (data as ErrorResponse).message || `Failed to update item at ${endpoint}`,
       }
     }
 

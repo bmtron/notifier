@@ -27,10 +27,10 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchTodos = async () => {
       const todosResult = await getTodoItems(1)
-      if (todosResult.success && todosResult.data) {
+      if (todosResult.success && todosResult.data && todosResult.data.length > 0) {
         setTodoSetsWithItems(
           todosResult.data.reduce((prev, curr) =>
-            (prev.TodoSetId ?? 0) > (curr.TodoSetId ?? 0) ? prev : curr
+            (prev.todoSetId ?? 0) > (curr.todoSetId ?? 0) ? prev : curr
           )
         )
       }

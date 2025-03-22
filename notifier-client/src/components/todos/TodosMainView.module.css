@@ -2,6 +2,7 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+  padding-top: 5rem;
   background-color: #f7fafc;
   min-height: 100vh;
 }
@@ -58,6 +59,7 @@
   padding: 0.5rem;
   border-radius: 6px;
   background-color: #f7fafc;
+  color: #2d3748;
 }
 
 .todoItem input[type='checkbox'] {

@@ -4,8 +4,9 @@ import { useAuth } from '../../context/AuthContext'
 import { createTodoItem } from '../../services/api/createTodoItem'
 import { createTodoSet } from '../../services/api/createTodoSet'
 import { getTodoItems } from '../../services/api/getTodo'
+import { updateTodoItem } from '../../services/api/updateTodoItem'
 import { TodoItem } from '../../utils/models/TodoItem'
-import { TodoSetWithItems } from '../../utils/models/TodoSetsWithItems'
+import { TodoSet, TodoSetWithItems } from '../../utils/models/TodoSetsWithItems'
 
 import styles from './TodosMainView.module.css'
 
@@ -13,7 +14,7 @@ export const TodosMainView = () => {
   const { user } = useAuth()
   const [todoSets, setTodoSets] = useState<TodoSetWithItems[]>([])
   const [newSetTitle, setNewSetTitle] = useState('')
-  const [newItemContent, setNewItemContent] = useState('')
+  const [newItemContents, setNewItemContents] = useState<Record<number, string>>({})
   const [selectedSetId, setSelectedSetId] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -34,59 +35,79 @@ export const TodosMainView = () => {
   const handleCreateSet = async () => {
     if (!user?.id || !newSetTitle.trim()) return
 
-    const newSet = {
-      TodoSetId: null,
-      UserId: Number(user.id),
-      Title: newSetTitle.trim(),
-      Deleted: false,
-      CreatedAt: new Date().toISOString(),
-      UpdatedAt: null,
+    const newSet: TodoSet = {
+      todoSetId: null,
+      userId: Number(user.id),
+      title: newSetTitle.trim(),
+      archived: false,
+      deleted: false,
+      createdAt: new Date(),
+      updatedAt: null,
     }
 
     const result = await createTodoSet(newSet)
+    console.log('result', result)
     if (result.success && result.data) {
-      setTodoSets([...todoSets, { ...result.data, Items: [] }])
+      console.log('result.data', result.data)
+      setTodoSets([...todoSets, { ...result.data, items: [] }])
       setNewSetTitle('')
     }
+    console.log('todoSets', todoSets)
   }
 
   const handleAddItem = async (setId: number) => {
-    if (!newItemContent.trim()) return
+    const content = newItemContents[setId]
+    if (!content.trim()) return
 
     const newItem: TodoItem = {
-      TodoItemId: null,
-      TodoSetId: setId,
-      Content: newItemContent.trim(),
-      Completed: false,
-      Deleted: false,
-      CreatedAt: new Date(),
-      UpdatedAt: null,
+      todoItemId: null,
+      todoSetId: setId,
+      content: content.trim(),
+      completed: false,
+      deleted: false,
+      createdAt: new Date(),
+      updatedAt: null,
     }
 
     const result = await createTodoItem(newItem)
     if (result.success && result.data) {
-      setTodoSets(
-        todoSets.map((set) =>
-          set.TodoSetId === setId ? { ...set, Items: [...set.Items, result.data!] } : set
-        )
+      const newTodoItem = result.data
+      const updatedTodoSets = todoSets.map((set) =>
+        set.todoSetId === setId ? { ...set, items: [...(set.items || []), newTodoItem] } : set
       )
-      setNewItemContent('')
+      console.log('updatedTodoSets', updatedTodoSets)
+      setTodoSets(updatedTodoSets)
+      setNewItemContents((prev) => ({ ...prev, [setId]: '' }))
     }
   }
 
-  const handleToggleItem = (setId: number, itemId: number) => {
-    setTodoSets(
-      todoSets.map((set) =>
-        set.TodoSetId === setId
-          ? {
-              ...set,
-              Items: set.Items.map((item) =>
-                item.TodoItemId === itemId ? { ...item, Completed: !item.Completed } : item
-              ),
-            }
-          : set
-      )
-    )
+  const handleToggleItem = async (setId: number, itemId: number) => {
+    const updatedTodoItem = todoSets
+      .find((set) => set.todoSetId === setId)
+      ?.items?.find((item) => item.todoItemId === itemId)
+    if (updatedTodoItem) {
+      updatedTodoItem.completed = !updatedTodoItem.completed
+      const result = await updateTodoItem(updatedTodoItem)
+      if (result.success && result.data) {
+        console.log('result', result)
+        setTodoSets(
+          todoSets.map((set) =>
+            set.todoSetId === setId
+              ? {
+                  ...set,
+                  items: set.items?.map((item) =>
+                    item.todoItemId === itemId
+                      ? { ...item, completed: updatedTodoItem.completed }
+                      : item
+                  ),
+                }
+              : set
+          )
+        )
+      } else {
+        alert('Could not update todo item. Please try again.')
+      }
+    }
   }
 
   if (isLoading) {
@@ -114,36 +135,46 @@ export const TodosMainView = () => {
       </div>
 
       <div className={styles.todoSets}>
-        {todoSets.map((set) => (
-          <div key={set.TodoSetId} className={styles.todoSet}>
-            <h2 className={styles.setTitle}>{set.Title}</h2>
-
+        {todoSets.map((set, index) => (
+          <div key={index} className={styles.todoSet}>
+            <h2 className={styles.setTitle}>{set.title}</h2>
             <div className={styles.items}>
-              {set.Items.map((item) => (
-                <div key={item.TodoItemId} className={styles.todoItem}>
-                  <input
-                    type="checkbox"
-                    checked={item.Completed}
-                    onChange={() => {
-                      handleToggleItem(set.TodoSetId!, item.TodoItemId!)
-                    }}
-                  />
-                  <span className={item.Completed ? styles.completed : ''}>{item.Content}</span>
-                </div>
-              ))}
+              {set.items &&
+                set.items.map((item, index) => {
+                  return (
+                    <div key={index} className={styles.todoItem}>
+                      <input
+                        type="checkbox"
+                        checked={item.completed}
+                        onChange={() => {
+                          if (set.todoSetId && item.todoItemId) {
+                            void handleToggleItem(set.todoSetId, item.todoItemId)
+                          }
+                        }}
+                      />
+                      <span className={item.completed ? styles.completed : ''}>{item.content}</span>
+                    </div>
+                  )
+                })}
             </div>
 
             <div className={styles.addItem}>
               <input
                 type="text"
-                value={newItemContent}
+                value={newItemContents[set.todoSetId ?? 0] || ''}
                 onChange={(e) => {
-                  setNewItemContent(e.target.value)
+                  setNewItemContents((prev) => ({
+                    ...prev,
+                    [set.todoSetId ?? 0]: e.target.value,
+                  }))
                 }}
                 placeholder="Add new todo item"
                 className={styles.input}
               />
-              <button onClick={() => void handleAddItem(set.TodoSetId!)} className={styles.button}>
+              <button
+                onClick={() => void handleAddItem(set.todoSetId ?? 0)}
+                className={styles.button}
+              >
                 Add Item
               </button>
             </div>

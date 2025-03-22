@@ -12,31 +12,31 @@ interface QuickTodosProps {
 export const QuickTodos = ({ userTodoSets }: QuickTodosProps) => {
   const [todosDefault, setTodosDefault] = useState<TodoItem[]>([
     {
-      TodoItemId: 1,
-      TodoSetId: 1,
-      Content: 'Complete project documentation',
-      Completed: false,
-      Deleted: false,
-      CreatedAt: new Date(),
-      UpdatedAt: null,
+      todoItemId: 1,
+      todoSetId: 1,
+      content: 'Complete project documentation',
+      completed: false,
+      deleted: false,
+      createdAt: new Date(),
+      updatedAt: null,
     },
     {
-      TodoItemId: 2,
-      TodoSetId: 1,
-      Content: 'Review pull requests',
-      Completed: true,
-      Deleted: false,
-      CreatedAt: new Date(),
-      UpdatedAt: null,
+      todoItemId: 2,
+      todoSetId: 1,
+      content: 'Review pull requests',
+      completed: true,
+      deleted: false,
+      createdAt: new Date(),
+      updatedAt: null,
     },
     {
-      TodoItemId: 3,
-      TodoSetId: 1,
-      Content: 'Schedule team meeting',
-      Completed: false,
-      Deleted: false,
-      CreatedAt: new Date(),
-      UpdatedAt: null,
+      todoItemId: 3,
+      todoSetId: 1,
+      content: 'Schedule team meeting',
+      completed: false,
+      deleted: false,
+      createdAt: new Date(),
+      updatedAt: null,
     },
   ])
   const [todoSetWithItems, setTodoSetWithItems] = useState<TodoSetWithItems | undefined>(
@@ -48,19 +48,19 @@ export const QuickTodos = ({ userTodoSets }: QuickTodosProps) => {
   const defaultTodos = (
     <div className={styles.todoList}>
       {todosDefault.map((todo) => (
-        <div key={todo.TodoItemId} className={styles.todoItem}>
+        <div key={todo.todoItemId} className={styles.todoItem}>
           <input
             type="checkbox"
-            checked={todo.Completed}
+            checked={todo.completed}
             onChange={() => {
               setTodosDefault(
                 todosDefault.map((t) =>
-                  t.TodoItemId === todo.TodoItemId ? { ...t, Completed: !t.Completed } : t
+                  t.todoItemId === todo.todoItemId ? { ...t, completed: !t.completed } : t
                 )
               )
             }}
           />
-          <span className={todo.Completed ? styles.completed : ''}>{todo.Content}</span>
+          <span className={todo.completed ? styles.completed : ''}>{todo.content}</span>
         </div>
       ))}
     </div>
@@ -69,22 +69,23 @@ export const QuickTodos = ({ userTodoSets }: QuickTodosProps) => {
   const realTodos = (
     <div className={styles.todoList}>
       {todoSetWithItems &&
-        todoSetWithItems.Items.map((todo) => (
-          <div key={todo.TodoItemId} className={styles.todoItem}>
+        todoSetWithItems.items &&
+        todoSetWithItems.items.map((todo) => (
+          <div key={todo.todoItemId} className={styles.todoItem}>
             <input
               type="checkbox"
-              checked={todo.Completed}
+              checked={todo.completed}
               onChange={() => {
-                const updatedItems = todoSetWithItems.Items.map((t) =>
-                  t.TodoItemId === todo.TodoItemId ? { ...t, Completed: !t.Completed } : t
+                const updatedItems = todoSetWithItems.items?.map((t) =>
+                  t.todoItemId === todo.todoItemId ? { ...t, completed: !t.completed } : t
                 )
                 setTodoSetWithItems({
                   ...todoSetWithItems,
-                  Items: updatedItems,
+                  items: updatedItems,
                 })
               }}
             />
-            <span className={todo.Completed ? styles.completed : ''}>{todo.Content}</span>
+            <span className={todo.completed ? styles.completed : ''}>{todo.content}</span>
           </div>
         ))}
     </div>
@@ -93,7 +94,9 @@ export const QuickTodos = ({ userTodoSets }: QuickTodosProps) => {
   return (
     <div>
       <h2>To-Do List</h2>
-      {todoSetWithItems && todoSetWithItems.Items.length > 0 ? realTodos : defaultTodos}
+      {todoSetWithItems && todoSetWithItems.items && todoSetWithItems.items.length > 0
+        ? realTodos
+        : defaultTodos}
       <button className={styles.navButton} onClick={() => void navigate('/todos')}>
         Go to Todos
       </button>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 
 import { useAuth } from '../../context/AuthContext'
@@ -17,7 +17,14 @@ export default function Login() {
   const [error, setError] = useState('')
   const navigate = useNavigate()
   const location = useLocation()
-  const { login } = useAuth()
+  const { login, isAuthenticated } = useAuth()
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      console.log('isAuthenticated', isAuthenticated)
+      void navigate('/dashboard', { replace: true })
+    }
+  })
 
   const from =
     location.state != null ? (location.state as LocationState).from.pathname || '/dashboard' : ''

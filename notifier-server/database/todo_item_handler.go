@@ -16,7 +16,7 @@ func CreateTodoItem(todoItem TodoItem, db *sql.DB) (TodoItem, error) {
         VALUES ($1, $2)
         RETURNING todo_item_id, created_at, updated_at
         `
-    err := db.QueryRow(query, todoItem.TodoSetID, todoItem.Content).Scan(&todoItem.TodoItemID, &todoItem.CreatedAt, &todoItem.UpdatedAt)
+    err := db.QueryRow(query, todoItem.TodoSetIdFromJson, todoItem.Content).Scan(&todoItem.TodoItemID, &todoItem.CreatedAt, &todoItem.UpdatedAt)
     if err != nil {
         log.Print(err)
         return todoItem, err

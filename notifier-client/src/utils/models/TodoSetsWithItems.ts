@@ -1,12 +1,13 @@
-import { TodoItem } from './TodoItem'
+import { TodoItem, transformTodoItemFromApi, TodoItemApiResponse } from './TodoItem'
 
 export interface TodoSet {
-  TodoSetId: number | null
-  UserId: number
-  Title: string
-  Deleted: boolean
-  CreatedAt: string // ISO date string
-  UpdatedAt: string | null // ISO date string or null
+  todoSetId: number | null
+  userId: number
+  title: string
+  archived: boolean
+  deleted: boolean
+  createdAt: Date
+  updatedAt: Date | null
 }
 
 export interface CreateTodoSetResult {
@@ -16,7 +17,7 @@ export interface CreateTodoSetResult {
 }
 
 export interface TodoSetWithItems extends TodoSet {
-  Items: TodoItem[]
+  items: TodoItem[] | undefined
 }
 
 export interface GetTodoItemsResult {
@@ -24,3 +25,25 @@ export interface GetTodoItemsResult {
   data?: TodoSetWithItems[]
   error?: string
 }
+
+export interface TodoSetApiResponse {
+  todo_set_id: number | null
+  user_id: number
+  title: string
+  archived: boolean
+  deleted: boolean
+  created_at: string | Date
+  updated_at: string | Date | null
+  items?: TodoItemApiResponse[]
+}
+
+export const transformTodoSetWithItemsFromApi = (data: TodoSetApiResponse): TodoSetWithItems => ({
+  todoSetId: data.todo_set_id,
+  userId: data.user_id,
+  title: data.title,
+  archived: data.archived,
+  deleted: data.deleted,
+  createdAt: new Date(data.created_at),
+  updatedAt: data.updated_at ? new Date(data.updated_at) : null,
+  items: data.items?.map(transformTodoItemFromApi),
+})
