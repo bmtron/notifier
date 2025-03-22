@@ -41,6 +41,7 @@ func GetTodoItem(todoItemID int, db *sql.DB) (TodoItem, error) {
     return todoItem, nil
 }
 
+
 func UpdateTodoItem(todoItemID int, updatedTodoItem TodoItem, db *sql.DB) (TodoItem, error) {
     query := `
         UPDATE todo_item

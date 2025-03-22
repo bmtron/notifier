@@ -30,6 +30,29 @@ type UserResponse struct {
     Name  string `json:"name"`
 }
 
+// Add new API key middleware
+func apiKeyMiddleware() gin.HandlerFunc {
+    return func(c *gin.Context) {
+        apiKey := c.GetHeader("X-API-Key")
+        // In production, this should be an environment variable
+        expectedApiKey := "your-api-key-here"
+
+        if apiKey == "" {
+            c.JSON(http.StatusUnauthorized, gin.H{"error": "API key required"})
+            c.Abort()
+            return
+        }
+
+        if apiKey != expectedApiKey {
+            c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid API key"})
+            c.Abort()
+            return
+        }
+
+        c.Next()
+    }
+}
+
 func main() {
     log.Print("Starting up server...")
     db = database.SetupDb()
@@ -37,39 +60,44 @@ func main() {
 
     // Configure CORS
     config := cors.DefaultConfig()
-    config.AllowOrigins = []string{"http://localhost:5173"} // Add your frontend URL
+    config.AllowOrigins = []string{"http://localhost:5173"}
     config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}
-    config.AllowHeaders = []string{"Origin", "Content-Type", "Accept", "Authorization"}
+    config.AllowHeaders = []string{"Origin", "Content-Type", "Accept", "Authorization", "X-API-Key"}
     router.Use(cors.New(config))
 
-    // Auth
-    router.POST("/auth/login", loginHandler)
-    router.GET("/auth/me", authMiddleware(), getUserInfoHandler)
+    // Public auth routes (no protection needed)
+    router.POST("/auth/login", apiKeyMiddleware(), loginHandler)
+    router.GET("/auth/me", apiKeyMiddleware(), authMiddleware(), getUserInfoHandler)
 
-    // Users
-    router.GET("/api/users/:id", getHandler(database.GetUser))
-    router.POST("/api/users", createHandler(database.CreateUser))
-    router.PUT("/api/users/:id", updateHandler(database.UpdateUser))
-    router.DELETE("/api/users/:id", deleteHandler(database.DeleteUser))
+    // Create an API group with both API key and JWT authentication
+    api := router.Group("/api")
+    api.Use(apiKeyMiddleware(), authMiddleware())
+    {
+        // Users
+        api.GET("/users/:id", getHandler(database.GetUser))
+        api.POST("/users", createHandler(database.CreateUser))
+        api.PUT("/users/:id", updateHandler(database.UpdateUser))
+        api.DELETE("/users/:id", deleteHandler(database.DeleteUser))
 
-    // Notes
-    router.GET("/api/notes/:id", getHandler(database.GetNote))
-    router.POST("/api/notes", createHandler(database.CreateNote))
-    router.PUT("/api/notes/:id", updateHandler(database.UpdateNote))
-    router.DELETE("/api/notes/:id", deleteHandler(database.DeleteNote))
+        // Notes
+        api.GET("/notes/:id", getHandler(database.GetNote))
+        api.POST("/notes", createHandler(database.CreateNote))
+        api.PUT("/notes/:id", updateHandler(database.UpdateNote))
+        api.DELETE("/notes/:id", deleteHandler(database.DeleteNote))
 
-    // Todo Sets
-    router.GET("/api/todo_sets/:id", getHandler(database.GetTodoSet))
-    router.POST("/api/todo_sets", createHandler(database.CreateTodoSet))
-    router.PUT("/api/todo_sets/:id", updateHandler(database.UpdateTodoSet))
-    router.DELETE("/api/todo_sets/:id", deleteHandler(database.DeleteTodoSet))
+        // Todo Sets
+        api.GET("/todo_sets/:id", getHandler(database.GetTodoSet))
+        api.POST("/todo_sets", createHandler(database.CreateTodoSet))
+        api.PUT("/todo_sets/:id", updateHandler(database.UpdateTodoSet))
+        api.DELETE("/todo_sets/:id", deleteHandler(database.DeleteTodoSet))
+        api.GET("/todo_sets/user/:id", getTodoSetsHandler)
 
-    // Todo Items
-    router.GET("/api/todo_items/:id", getHandler(database.GetTodoItem))
-    router.POST("/api/todo_items", createHandler(database.CreateTodoItem))
-    router.PUT("/api/todo_items/:id", updateHandler(database.UpdateTodoItem))
-    router.DELETE("/api/todo_items/:id", deleteHandler(database.DeleteTodoItem))
-
+        // Todo Items
+        api.GET("/todo_items/:id", getHandler(database.GetTodoItem))
+        api.POST("/todo_items", createHandler(database.CreateTodoItem))
+        api.PUT("/todo_items/:id", updateHandler(database.UpdateTodoItem))
+        api.DELETE("/todo_items/:id", deleteHandler(database.DeleteTodoItem))
+    }
 
     router.Run("0.0.0.0:8008")
 }
@@ -257,4 +285,15 @@ func getUserInfoHandler(c *gin.Context) {
     }
 
     c.JSON(http.StatusOK, userResponse)
+}
+
+func getTodoSetsHandler(c *gin.Context) {
+    userID := c.GetInt("user_id")
+    todoSets, err := database.GetAllTodoSetsAndItemsForUser(userID, db)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch todo sets"})
+        return
+    }
+
+    c.JSON(http.StatusOK, todoSets)
 }
