@@ -4,6 +4,7 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import Login from './components/auth/Login'
 import Register from './components/auth/Register'
 import Dashboard from './components/dashboard/Dashboard'
+import { TodosMainView } from './components/todos/TodosMainView'
 import { AuthProvider } from './context/AuthContext'
 
 function App() {
@@ -17,6 +18,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/todos"
+          element={
+            <ProtectedRoute>
+              <TodosMainView />
             </ProtectedRoute>
           }
         />

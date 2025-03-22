@@ -1,13 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+
+import { getTodoItems } from '../../services/api/getTodo'
+import { TodoSetWithItems } from '../../utils/models/TodoSetsWithItems'
 
 import styles from './Dashboard.module.css'
-
-interface TodoItem {
-  id: number
-  text: string
-  completed: boolean
-}
-
+import { QuickTodos } from './helpers/QuickTodos'
 interface Note {
   id: number
   title: string
@@ -23,11 +21,22 @@ interface Reminder {
 }
 
 const Dashboard = () => {
-  const [todos, setTodos] = useState<TodoItem[]>([
-    { id: 1, text: 'Complete project documentation', completed: false },
-    { id: 2, text: 'Review pull requests', completed: true },
-    { id: 3, text: 'Schedule team meeting', completed: false },
-  ])
+  const [todoSetsWithItems, setTodoSetsWithItems] = useState<TodoSetWithItems>()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const fetchTodos = async () => {
+      const todosResult = await getTodoItems(1)
+      if (todosResult.success && todosResult.data) {
+        setTodoSetsWithItems(
+          todosResult.data.reduce((prev, curr) =>
+            (prev.TodoSetId ?? 0) > (curr.TodoSetId ?? 0) ? prev : curr
+          )
+        )
+      }
+    }
+    void fetchTodos()
+  }, [])
 
   const [notes, setNotes] = useState<Note[]>([
     {
@@ -81,24 +90,9 @@ const Dashboard = () => {
         </section>
 
         {/* To-Do List */}
+        {/* If the user has their own todo items, show that, otherwise show the default todos */}
         <section className={styles.todoSection}>
-          <h2>To-Do List</h2>
-          <div className={styles.todoList}>
-            {todos.map((todo) => (
-              <div key={todo.id} className={styles.todoItem}>
-                <input
-                  type="checkbox"
-                  checked={todo.completed}
-                  onChange={() => {
-                    setTodos(
-                      todos.map((t) => (t.id === todo.id ? { ...t, completed: !t.completed } : t))
-                    )
-                  }}
-                />
-                <span className={todo.completed ? styles.completed : ''}>{todo.text}</span>
-              </div>
-            ))}
-          </div>
+          <QuickTodos userTodoSets={todoSetsWithItems} />
         </section>
 
         {/* Recent Notes */}

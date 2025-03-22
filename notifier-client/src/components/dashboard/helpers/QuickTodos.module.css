@@ -1,0 +1,45 @@
+.todoSection,
+.notesSection,
+.remindersSection {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.todoSection h2,
+.notesSection h2,
+.remindersSection h2 {
+  color: #2d3748;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+}
+
+.todoList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  color: #2d3748;
+  margin-bottom: 4rem;
+}
+
+.todoItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+  background-color: #f7fafc;
+}
+
+.todoItem input[type='checkbox'] {
+  width: 1.25rem;
+  height: 1.25rem;
+  cursor: pointer;
+}
+
+.completed {
+  text-decoration: line-through;
+  color: #718096;
+}

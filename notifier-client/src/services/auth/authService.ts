@@ -1,8 +1,26 @@
 import axios from 'axios'
 
-import { API_ENDPOINT_URL_DEBUG } from '../../utils/constants/constants'
+import { API_ENDPOINT_URL_DEBUG, API_KEY } from '../../utils/constants/constants'
 
 const API_URL = API_ENDPOINT_URL_DEBUG
+
+// Create base axios instance
+const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': API_KEY,
+  },
+})
+
+// Add interceptor to automatically add auth token to requests
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
 
 export interface LoginCredentials {
   email: string
@@ -23,9 +41,8 @@ class AuthService {
 
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
-      const response = await axios.post<AuthResponse>(`${API_URL}/auth/login`, credentials)
+      const response = await api.post<AuthResponse>('/auth/login', credentials)
       const { token, user } = response.data
-      console.log('TOKEN: ', token)
       this.setToken(token)
       return { token, user }
     } catch (error: unknown) {
@@ -33,6 +50,18 @@ class AuthService {
         throw new Error(`Login failed: ${error.message}`)
       }
       throw new Error('Login failed')
+    }
+  }
+
+  async getUserInfo(): Promise<AuthResponse['user']> {
+    try {
+      const response = await api.get<AuthResponse['user']>('/auth/me')
+      return response.data
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to fetch user info: ${error.message}`)
+      }
+      throw new Error('Failed to fetch user info')
     }
   }
 
@@ -52,26 +81,6 @@ class AuthService {
 
   isAuthenticated(): boolean {
     return !!this.token
-  }
-
-  async getUserInfo(): Promise<AuthResponse['user']> {
-    if (!this.token) {
-      throw new Error('No authentication token found')
-    }
-
-    try {
-      const response = await axios.get<AuthResponse['user']>(`${API_URL}/auth/me`, {
-        headers: {
-          Authorization: `Bearer ${this.token}`,
-        },
-      })
-      return response.data
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error(`Failed to fetch user info: ${error.message}`)
-      }
-      throw new Error('Failed to fetch user info')
-    }
   }
 }
 
