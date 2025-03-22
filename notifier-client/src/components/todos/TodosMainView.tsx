@@ -46,13 +46,10 @@ export const TodosMainView = () => {
     }
 
     const result = await createTodoSet(newSet)
-    console.log('result', result)
     if (result.success && result.data) {
-      console.log('result.data', result.data)
       setTodoSets([...todoSets, { ...result.data, items: [] }])
       setNewSetTitle('')
     }
-    console.log('todoSets', todoSets)
   }
 
   const handleAddItem = async (setId: number) => {
@@ -75,7 +72,6 @@ export const TodosMainView = () => {
       const updatedTodoSets = todoSets.map((set) =>
         set.todoSetId === setId ? { ...set, items: [...(set.items || []), newTodoItem] } : set
       )
-      console.log('updatedTodoSets', updatedTodoSets)
       setTodoSets(updatedTodoSets)
       setNewItemContents((prev) => ({ ...prev, [setId]: '' }))
     }
@@ -89,7 +85,6 @@ export const TodosMainView = () => {
       updatedTodoItem.completed = !updatedTodoItem.completed
       const result = await updateTodoItem(updatedTodoItem)
       if (result.success && result.data) {
-        console.log('result', result)
         setTodoSets(
           todoSets.map((set) =>
             set.todoSetId === setId

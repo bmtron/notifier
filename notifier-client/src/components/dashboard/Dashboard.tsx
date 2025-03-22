@@ -1,8 +1,4 @@
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-
-import { getTodoItems } from '../../services/api/getTodo'
-import { TodoSetWithItems } from '../../utils/models/TodoSetsWithItems'
+import { useState } from 'react'
 
 import styles from './Dashboard.module.css'
 import { QuickTodos } from './helpers/QuickTodos'
@@ -21,23 +17,6 @@ interface Reminder {
 }
 
 const Dashboard = () => {
-  const [todoSetsWithItems, setTodoSetsWithItems] = useState<TodoSetWithItems>()
-  const navigate = useNavigate()
-
-  useEffect(() => {
-    const fetchTodos = async () => {
-      const todosResult = await getTodoItems(1)
-      if (todosResult.success && todosResult.data && todosResult.data.length > 0) {
-        setTodoSetsWithItems(
-          todosResult.data.reduce((prev, curr) =>
-            (prev.todoSetId ?? 0) > (curr.todoSetId ?? 0) ? prev : curr
-          )
-        )
-      }
-    }
-    void fetchTodos()
-  }, [])
-
   const [notes, setNotes] = useState<Note[]>([
     {
       id: 1,
@@ -92,7 +71,7 @@ const Dashboard = () => {
         {/* To-Do List */}
         {/* If the user has their own todo items, show that, otherwise show the default todos */}
         <section className={styles.todoSection}>
-          <QuickTodos userTodoSets={todoSetsWithItems} />
+          <QuickTodos />
         </section>
 
         {/* Recent Notes */}

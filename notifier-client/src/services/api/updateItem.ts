@@ -21,8 +21,6 @@ export const updateItem = async <TInput, TResponse = TInput>(
     }
   }
 
-  console.log('JSON_UPDATE_ITEM', JSON.stringify(item))
-
   try {
     const response = await fetch(fullEndpoint, {
       method: 'PUT',

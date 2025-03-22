@@ -1,15 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { useAuth } from '../../../context/AuthContext'
+import { getTodoItems } from '../../../services/api/getTodo'
 import { TodoItem } from '../../../utils/models/TodoItem'
 import { TodoSetWithItems } from '../../../utils/models/TodoSetsWithItems'
 
 import styles from './QuickTodos.module.css'
 
-interface QuickTodosProps {
-  userTodoSets: TodoSetWithItems | undefined
-}
-export const QuickTodos = ({ userTodoSets }: QuickTodosProps) => {
+export const QuickTodos = () => {
+  const { user } = useAuth()
+  const [todoSetWithItems, setTodoSetWithItems] = useState<TodoSetWithItems>()
   const [todosDefault, setTodosDefault] = useState<TodoItem[]>([
     {
       todoItemId: 1,
@@ -39,9 +40,20 @@ export const QuickTodos = ({ userTodoSets }: QuickTodosProps) => {
       updatedAt: null,
     },
   ])
-  const [todoSetWithItems, setTodoSetWithItems] = useState<TodoSetWithItems | undefined>(
-    userTodoSets
-  )
+  useEffect(() => {
+    const fetchTodos = async () => {
+      if (!user?.id) return
+      const todosResult = await getTodoItems(Number(user.id))
+      if (todosResult.success && todosResult.data && todosResult.data.length > 0) {
+        setTodoSetWithItems(
+          todosResult.data.reduce((prev, curr) =>
+            (prev.todoSetId ?? 0) > (curr.todoSetId ?? 0) ? prev : curr
+          )
+        )
+      }
+    }
+    void fetchTodos()
+  }, [])
 
   const navigate = useNavigate()
 

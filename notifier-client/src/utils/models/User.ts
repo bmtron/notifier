@@ -3,7 +3,7 @@ export interface User {
   username: string
   email: string
   password: string
-  CreatedAt: Date | null
+  createdAt: Date | null
   updatedAt: Date | null
 }
 

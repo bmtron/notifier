@@ -13,22 +13,18 @@ const Register = () => {
   const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
-    console.log('Register attempt with:', { email, username, password })
-
     const user: User = {
-      Email: email,
-      Username: username,
-      Password: password,
-      UserId: null,
-      CreatedAt: null,
-      UpdatedAt: null,
+      email: email,
+      username: username,
+      password: password,
+      userId: null,
+      createdAt: null,
+      updatedAt: null,
     }
-    console.log('USER: ', user)
 
     const response = await createUser(user)
 
     if (response.success && response.data) {
-      console.log('User created:', response.data)
       await navigate('/login')
     } else {
       alert(response.error)
