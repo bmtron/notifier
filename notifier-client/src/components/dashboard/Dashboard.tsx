@@ -48,7 +48,7 @@ const Dashboard = () => {
   ])
 
   const showTodoModal = () => {
-    console.log('showTodoModal')
+    // TODO: Implement Todo Modal...maybe?
   }
 
   return (

@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../../context/AuthContext'
 import { createNote } from '../../services/api/createNote'
@@ -10,9 +9,7 @@ import { Note } from '../../utils/models/Note'
 import styles from './NotesMainView.module.css'
 export const NotesMainView = () => {
   const { user } = useAuth()
-  const navigate = useNavigate()
   const [notes, setNotes] = useState<Note[]>([])
-  const [dirtyNotes, setDirtyNotes] = useState<boolean>(false)
   const [newNoteTitle, setNewNoteTitle] = useState('')
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 

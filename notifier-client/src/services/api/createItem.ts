@@ -3,6 +3,7 @@ import { ErrorResponse } from '../../utils/helpers/ErrorResponse'
 import { Note, NoteApiResponse } from '../../utils/models/Note'
 import { TodoItem, TodoItemApiResponse } from '../../utils/models/TodoItem'
 import { TodoSet, TodoSetApiResponse } from '../../utils/models/TodoSetsWithItems'
+import { User } from '../../utils/models/User'
 
 type AllowedItems =
   | Note
@@ -10,6 +11,7 @@ type AllowedItems =
   | TodoSet
   | TodoItemApiResponse
   | NoteApiResponse
+  | User
   | TodoSetApiResponse
 
 export interface CreateItemResult<T> {
@@ -32,7 +34,6 @@ export const createItem = async <TResponse>(
     }
   }
 
-  console.log('Creating item:', JSON.stringify(item))
   try {
     const response = await fetch(fullEndpoint, {
       method: 'POST',

@@ -58,9 +58,7 @@ export const QuickTodos = () => {
       }
     }
     void fetchTodos()
-  }, [])
-
-  const navigate = useNavigate()
+  }, [user?.id])
 
   const defaultTodos = (
     <div className={styles.todoList}>

@@ -15,7 +15,6 @@ export const TodosMainView = () => {
   const [todoSets, setTodoSets] = useState<TodoSetWithItems[]>([])
   const [newSetTitle, setNewSetTitle] = useState('')
   const [newItemContents, setNewItemContents] = useState<Record<number, string>>({})
-  const [selectedSetId, setSelectedSetId] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {

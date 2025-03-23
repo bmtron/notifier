@@ -12,7 +12,7 @@ const Register = () => {
   const [password, setPassword] = useState('')
   const navigate = useNavigate()
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async () => {
     const user: User = {
       email: email,
       username: username,
@@ -41,7 +41,7 @@ const Register = () => {
         <form
           onSubmit={(e) => {
             e.preventDefault()
-            void handleSubmit(e)
+            void handleSubmit()
           }}
           className={styles.form}
         >
