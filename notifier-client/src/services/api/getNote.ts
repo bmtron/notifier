@@ -1,13 +1,14 @@
 import { API_ENDPOINT_URL_DEBUG, API_KEY } from '../../utils/constants/constants'
 import { ErrorResponse } from '../../utils/helpers/ErrorResponse'
 import {
-  GetTodoItemsResult,
-  transformTodoSetWithItemsFromApi,
-  TodoSetApiResponse,
-} from '../../utils/models/TodoSetsWithItems'
+  GetNotesResult,
+  Note,
+  NoteApiResponse,
+  transformNoteFromApi,
+} from '../../utils/models/Note'
 
-export const getTodoItems = async (userId: number): Promise<GetTodoItemsResult> => {
-  const endpoint = API_ENDPOINT_URL_DEBUG + '/api/todo_sets/user/' + userId.toString()
+export const getNotes = async (userId: number): Promise<GetNotesResult> => {
+  const endpoint = API_ENDPOINT_URL_DEBUG + '/api/notes/user/' + userId.toString()
 
   try {
     const token = localStorage.getItem('token')
@@ -17,6 +18,7 @@ export const getTodoItems = async (userId: number): Promise<GetTodoItemsResult> 
         error: 'No token found',
       }
     }
+
     const response = await fetch(endpoint, {
       method: 'GET',
       headers: {
@@ -26,16 +28,16 @@ export const getTodoItems = async (userId: number): Promise<GetTodoItemsResult> 
       },
     })
 
-    const data = (await response.json()) as TodoSetApiResponse[] | ErrorResponse
+    const data = (await response.json()) as NoteApiResponse[] | ErrorResponse
 
     if (!response.ok) {
       return {
         success: false,
-        error: 'message' in data ? data.message : 'Failed to get todo items',
+        error: 'message' in data ? data.message : 'Failed to get notes',
       }
     }
 
-    const transformedData = (data as TodoSetApiResponse[]).map(transformTodoSetWithItemsFromApi)
+    const transformedData = (data as NoteApiResponse[]).map(transformNoteFromApi)
 
     return {
       success: true,
@@ -48,6 +50,3 @@ export const getTodoItems = async (userId: number): Promise<GetTodoItemsResult> 
     }
   }
 }
-
-// TODO: Consider moving the snake_case to PascalCase transformation to the backend API
-// for better consistency and maintainability across different clients

@@ -1,5 +1,16 @@
 import { API_ENDPOINT_URL_DEBUG, API_KEY } from '../../utils/constants/constants'
 import { ErrorResponse } from '../../utils/helpers/ErrorResponse'
+import { Note, NoteApiResponse } from '../../utils/models/Note'
+import { TodoItem, TodoItemApiResponse } from '../../utils/models/TodoItem'
+import { TodoSet, TodoSetApiResponse } from '../../utils/models/TodoSetsWithItems'
+
+type AllowedItems =
+  | Note
+  | TodoItem
+  | TodoSet
+  | TodoItemApiResponse
+  | NoteApiResponse
+  | TodoSetApiResponse
 
 export interface CreateItemResult<T> {
   success: boolean
@@ -7,8 +18,8 @@ export interface CreateItemResult<T> {
   error?: string
 }
 
-export const createItem = async <TInput, TResponse>(
-  item: TInput,
+export const createItem = async <TResponse>(
+  item: AllowedItems,
   endpoint: string
 ): Promise<CreateItemResult<TResponse>> => {
   const fullEndpoint = API_ENDPOINT_URL_DEBUG + endpoint
@@ -21,6 +32,7 @@ export const createItem = async <TInput, TResponse>(
     }
   }
 
+  console.log('Creating item:', JSON.stringify(item))
   try {
     const response = await fetch(fullEndpoint, {
       method: 'POST',

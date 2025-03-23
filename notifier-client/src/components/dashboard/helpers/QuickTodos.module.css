@@ -2,9 +2,11 @@
 .notesSection,
 .remindersSection {
   background: white;
+  color: #2d3748;
   padding: 1.5rem;
   border-radius: 10px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  height: 30rem;
 }
 
 .todoSection h2,
@@ -16,12 +18,47 @@
   font-size: 1.25rem;
 }
 
-.todoList {
+.todoContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
+}
+
+.todosButtonsContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  color: white;
+  position: relative;
+  bottom: 0;
+}
+
+.todosButtonsContainer button {
+  background-color: #3182ce;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.carouselButtonContainer {
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
+  justify-content: space-between;
+  color: white;
+}
+
+.todoCarouselContainer {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  color: #2d3748;
-  margin-bottom: 4rem;
+  overflow: auto;
+  min-height: 15rem;
+  max-height: 15rem;
 }
 
 .todoItem {
@@ -31,15 +68,53 @@
   padding: 0.5rem;
   border-radius: 6px;
   background-color: #f7fafc;
+  color: #2d3748;
 }
 
 .todoItem input[type='checkbox'] {
-  width: 1.25rem;
-  height: 1.25rem;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #3182ce;
+  border-radius: 3px;
+  background-color: white;
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+}
+.todoItem span {
+  flex: 1;
+}
+
+.todoItem input[type='checkbox']:checked {
+  background-color: #3182ce;
+  position: relative;
+}
+
+.todoItem input[type='checkbox']:checked::after {
+  content: '✓';
+  color: white;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
 }
 
 .completed {
   text-decoration: line-through;
   color: #718096;
+}
+
+.navButton {
+  background-color: #3182ce;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  width: 50%;
 }

@@ -81,6 +81,7 @@ func main() {
 
         // Notes
         api.GET("/notes/:id", getHandler(database.GetNote))
+        api.GET("/notes/user/:id", getNotesByUserIdHandler)
         api.POST("/notes", createHandler(database.CreateNote))
         api.PUT("/notes/:id", updateHandler(database.UpdateNote))
         api.DELETE("/notes/:id", deleteHandler(database.DeleteNote))
@@ -296,4 +297,15 @@ func getTodoSetsHandler(c *gin.Context) {
     }
 
     c.JSON(http.StatusOK, todoSets)
+}
+
+func getNotesByUserIdHandler(c *gin.Context) {
+    userID := c.GetInt("user_id")
+    notes, err := database.GetNotesByUserID(userID, db)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch notes"})
+        return
+    }
+
+    c.JSON(http.StatusOK, notes)
 }

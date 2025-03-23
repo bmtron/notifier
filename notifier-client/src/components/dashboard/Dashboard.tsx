@@ -47,6 +47,10 @@ const Dashboard = () => {
     },
   ])
 
+  const showTodoModal = () => {
+    console.log('showTodoModal')
+  }
+
   return (
     <div className={styles.dashboard}>
       <header className={styles.header}>
@@ -63,7 +67,14 @@ const Dashboard = () => {
           <h2>Quick Actions</h2>
           <div className={styles.actionButtons}>
             <button className={styles.actionButton}>New Note</button>
-            <button className={styles.actionButton}>Add Task</button>
+            <button
+              className={styles.actionButton}
+              onClick={() => {
+                showTodoModal()
+              }}
+            >
+              Add Todo
+            </button>
             <button className={styles.actionButton}>Set Reminder</button>
           </div>
         </section>
@@ -75,6 +86,7 @@ const Dashboard = () => {
         </section>
 
         {/* Recent Notes */}
+        {/* TODO: Implement QuickNotes similar to QuickTodos */}
         <section className={styles.notesSection}>
           <h2>Recent Notes</h2>
           <div className={styles.notesList}>

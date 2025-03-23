@@ -8,7 +8,7 @@ import {
 import { createItem } from './createItem'
 
 export const createTodoSet = async (todoSet: TodoSet): Promise<CreateTodoSetResult> => {
-  const result = await createItem<TodoSet, TodoSetApiResponse>(todoSet, '/api/todo_sets')
+  const result = await createItem<TodoSetApiResponse>(todoSet, '/api/todo_sets')
   if (!result.success || !result.data) {
     return {
       success: false,

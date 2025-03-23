@@ -32,6 +32,9 @@ export const Navbar = () => {
               <Link to="/todos" className={styles.navLink}>
                 Todos
               </Link>
+              <Link to="/notes" className={styles.navLink}>
+                Notes
+              </Link>
             </div>
           </div>
           <button onClick={handleLogout} className={styles.logoutButton}>

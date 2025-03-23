@@ -1,5 +1,10 @@
 import { API_ENDPOINT_URL_DEBUG, API_KEY } from '../../utils/constants/constants'
 import { ErrorResponse } from '../../utils/helpers/ErrorResponse'
+import { Note } from '../../utils/models/Note'
+import { TodoItem } from '../../utils/models/TodoItem'
+import { TodoSet } from '../../utils/models/TodoSetsWithItems'
+
+type AllowedItems = Note | TodoItem | TodoSet
 
 export interface UpdateItemResult<T> {
   success: boolean
@@ -7,8 +12,8 @@ export interface UpdateItemResult<T> {
   error?: string
 }
 
-export const updateItem = async <TInput, TResponse = TInput>(
-  item: TInput,
+export const updateItem = async <TResponse>(
+  item: AllowedItems,
   endpoint: string
 ): Promise<UpdateItemResult<TResponse>> => {
   const fullEndpoint = API_ENDPOINT_URL_DEBUG + endpoint

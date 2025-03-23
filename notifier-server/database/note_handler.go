@@ -28,14 +28,41 @@ func GetNote(noteID int, db *sql.DB) (Note, error) {
     return note, nil
 }
 
+func GetNotesByUserID(userID int, db *sql.DB) ([]Note, error) {
+    query := `
+        SELECT note_id, user_id, title, content, deleted, created_at, updated_at
+        FROM notes
+        WHERE user_id = $1
+        `
+    rows, err := db.Query(query, userID)
+    if err != nil {
+        log.Print(err)
+        return nil, err
+    }
+    defer rows.Close()
+
+    var notes []Note
+    for rows.Next() {
+        var note Note
+        err = rows.Scan(&note.NoteID, &note.UserID, &note.Title, &note.Content, &note.Deleted, &note.CreatedAt, &note.UpdatedAt)
+        if err != nil {
+            log.Print(err)
+            return nil, err
+        }
+        notes = append(notes, note)
+    }
+    return notes, nil
+}
+
 
 func CreateNote(note Note, db *sql.DB) (Note, error) {
+    log.Print("Creating note:", note)
     query := `
         INSERT INTO notes (user_id, title, content)
         VALUES ($1, $2, $3)
         RETURNING note_id, created_at, updated_at
         `
-    err := db.QueryRow(query, note.UserID, note.Title, note.Content).Scan(&note.NoteID, &note.CreatedAt, &note.UpdatedAt)
+    err := db.QueryRow(query, note.UserIdFromAPI, note.Title, note.Content).Scan(&note.NoteID, &note.CreatedAt, &note.UpdatedAt)
     if err != nil {
         log.Print(err)
         return note, err
