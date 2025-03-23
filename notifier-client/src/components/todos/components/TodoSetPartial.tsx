@@ -49,8 +49,11 @@ export const TodoSetPartial = ({
   }
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className={styles.todoSet}>
-      <h2 className={styles.setTitle}>{set.title}</h2>
+    <div ref={setNodeRef} style={style} className={styles.todoSet}>
+      <div className={styles.setTitleWrapper} {...attributes} {...listeners}>
+        <h2 className={styles.setTitle}>{set.title}</h2>
+        <div className={styles.dragHandle}>⋮⋮</div>
+      </div>
       <div className={styles.items}>
         {set.items &&
           set.items.map((item, index) => {
