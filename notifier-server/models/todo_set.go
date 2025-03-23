@@ -12,7 +12,10 @@ type TodoSet struct {
     Deleted   bool      `json:"deleted"`
     CreatedAt time.Time `json:"created_at"`
     UpdatedAt *time.Time `json:"updated_at"`
+    DisplayOrder int    `json:"display_order"`
     UserIDFromJson int `json:"userid"`
+    TodoSetIDFromJson int `json:"todosetid"`
+    DisplayOrderFromJson int `json:"displayorder"`
 }
 
 type TodoSetWithItems struct {

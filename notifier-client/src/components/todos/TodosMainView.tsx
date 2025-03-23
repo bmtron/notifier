@@ -1,3 +1,4 @@
+import { DndContext, DragEndEvent } from '@dnd-kit/core'
 import { useState, useEffect } from 'react'
 
 import { useAuth } from '../../context/AuthContext'
@@ -5,10 +6,12 @@ import { createTodoItem } from '../../services/api/createTodoItem'
 import { createTodoSet } from '../../services/api/createTodoSet'
 import { getTodoItems } from '../../services/api/getTodo'
 import { updateTodoItem } from '../../services/api/updateTodoItem'
+import { updateTodoSetBatch } from '../../services/api/updateTodoSets'
 import { TodoItem } from '../../utils/models/TodoItem'
 import { TodoSet, TodoSetWithItems } from '../../utils/models/TodoSetsWithItems'
 
 import styles from './TodosMainView.module.css'
+import { TodoSetPartial } from './components/TodoSetPartial'
 
 export const TodosMainView = () => {
   const { user } = useAuth()
@@ -23,7 +26,15 @@ export const TodosMainView = () => {
 
       const result = await getTodoItems(Number(user.id))
       if (result.success && result.data) {
-        setTodoSets(result.data)
+        if (result.data.every((set) => set.displayOrder === 0)) {
+          // if somehow the display order for every item is 0,
+          // then just set it to a temporary value (here, the index) until the user starts reordering
+          result.data.map((set, index) => {
+            set.displayOrder = index
+          })
+        }
+        const sortedTodoSets = result.data.sort((a, b) => a.displayOrder - b.displayOrder)
+        setTodoSets(sortedTodoSets)
       }
       setIsLoading(false)
     }
@@ -42,6 +53,7 @@ export const TodosMainView = () => {
       deleted: false,
       createdAt: new Date(),
       updatedAt: null,
+      displayOrder: 0,
     }
 
     const result = await createTodoSet(newSet)
@@ -104,6 +116,31 @@ export const TodosMainView = () => {
     }
   }
 
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event
+
+    if (!active || !over || active.id === over.id) return
+
+    const oldIndex = todoSets.findIndex((set) => set.todoSetId?.toString() === active.id)
+    const newIndex = todoSets.findIndex((set) => set.todoSetId?.toString() === over.id)
+
+    if (oldIndex === -1 || newIndex === -1) return
+
+    const newTodoSets = [...todoSets]
+    const [movedSet] = newTodoSets.splice(oldIndex, 1)
+    newTodoSets.splice(newIndex, 0, movedSet)
+
+    // Update display order for all sets
+    const updatedTodoSets = newTodoSets.map((set, index) => ({
+      ...set,
+      displayOrder: index,
+    }))
+
+    setTodoSets(updatedTodoSets)
+    // TODO: Add API call to update display order on the backend
+    await updateTodoSetBatch(updatedTodoSets)
+  }
+
   if (isLoading) {
     return <div className={styles.loading}>Loading...</div>
   }
@@ -128,53 +165,23 @@ export const TodosMainView = () => {
         </div>
       </div>
 
-      <div className={styles.todoSets}>
-        {todoSets.map((set, index) => (
-          <div key={index} className={styles.todoSet}>
-            <h2 className={styles.setTitle}>{set.title}</h2>
-            <div className={styles.items}>
-              {set.items &&
-                set.items.map((item, index) => {
-                  return (
-                    <div key={index} className={styles.todoItem}>
-                      <input
-                        type="checkbox"
-                        checked={item.completed}
-                        onChange={() => {
-                          if (set.todoSetId && item.todoItemId) {
-                            void handleToggleItem(set.todoSetId, item.todoItemId)
-                          }
-                        }}
-                      />
-                      <span className={item.completed ? styles.completed : ''}>{item.content}</span>
-                    </div>
-                  )
-                })}
-            </div>
-
-            <div className={styles.addItem}>
-              <input
-                type="text"
-                value={newItemContents[set.todoSetId ?? 0] || ''}
-                onChange={(e) => {
-                  setNewItemContents((prev) => ({
-                    ...prev,
-                    [set.todoSetId ?? 0]: e.target.value,
-                  }))
-                }}
-                placeholder="Add new todo item"
-                className={styles.input}
-              />
-              <button
-                onClick={() => void handleAddItem(set.todoSetId ?? 0)}
-                className={styles.button}
-              >
-                Add Item
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+      <DndContext onDragEnd={handleDragEnd}>
+        <div className={styles.todoSets}>
+          {todoSets.map((set, index) => (
+            <TodoSetPartial
+              key={set.todoSetId ?? index}
+              set={set}
+              index={index}
+              newItemContents={newItemContents}
+              setNewItemContents={setNewItemContents}
+              handleToggleItem={(todoSetId, todoItemId) =>
+                void handleToggleItem(todoSetId, todoItemId)
+              }
+              handleAddItem={(todoSetId) => void handleAddItem(todoSetId)}
+            />
+          ))}
+        </div>
+      </DndContext>
     </div>
   )
 }
