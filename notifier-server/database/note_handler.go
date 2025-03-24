@@ -87,17 +87,19 @@ func UpdateNote(noteID int, updatedNote Note, db *sql.DB) (Note, error) {
     return updatedNote, nil
 }
 
-func DeleteNote(noteID int, db *sql.DB) (string, error) {
+func DeleteNote(noteID int, db *sql.DB) (Note, error) {
     query := `
         UPDATE notes
         SET deleted = TRUE, updated_at = CURRENT_TIMESTAMP
         WHERE note_id = $1
+        RETURNING note_id, user_id, title, content, deleted, created_at, updated_at
         `
-    _, err := db.Exec(query, noteID)
+    var deletedNote Note
+    err := db.QueryRow(query, noteID).Scan(&deletedNote.NoteID, &deletedNote.UserID, &deletedNote.Title, &deletedNote.Content, &deletedNote.Deleted, &deletedNote.CreatedAt, &deletedNote.UpdatedAt)
     if err != nil {
         log.Print(err)
-        return "", err
+        return deletedNote, err
     }
 
-    return "Note deleted successfully", nil
+    return deletedNote, nil
 }

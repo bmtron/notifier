@@ -150,7 +150,7 @@ func loginHandler(c *gin.Context) {
     })
 }
 
-func deleteHandler(deleteFunc func(itemId int, db *sql.DB) (string, error)) gin.HandlerFunc {
+func deleteHandler[T any](deleteFunc func(itemId int, db *sql.DB) (T, error)) gin.HandlerFunc {
     return func(c *gin.Context) {
         itemId := c.Param("id")
         itemIdInt, err := strconv.Atoi(itemId)
@@ -160,14 +160,14 @@ func deleteHandler(deleteFunc func(itemId int, db *sql.DB) (string, error)) gin.
             c.IndentedJSON(http.StatusBadRequest, err)
             return
         }
-        value, dbErr := deleteFunc(itemIdInt, db)
+        result, dbErr := deleteFunc(itemIdInt, db)
         if (dbErr != nil) {
             log.Print(dbErr)
             c.IndentedJSON(http.StatusInternalServerError, dbErr)
             return
         }
        
-        c.IndentedJSON(http.StatusOK, gin.H{"message": value})
+        c.IndentedJSON(http.StatusOK, result)
     }
 }
 

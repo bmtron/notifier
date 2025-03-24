@@ -58,17 +58,19 @@ func UpdateTodoItem(todoItemID int, updatedTodoItem TodoItem, db *sql.DB) (TodoI
     return updatedTodoItem, nil
 }
 
-func DeleteTodoItem(todoItemID int, db *sql.DB) (string, error) {
+func DeleteTodoItem(todoItemID int, db *sql.DB) (TodoItem, error) {
     query := `
         UPDATE todo_item
         SET deleted = TRUE, updated_at = CURRENT_TIMESTAMP
         WHERE todo_item_id = $1
+        RETURNING todo_item_id, todo_set_id, content, completed, deleted, created_at, updated_at
         `
-    _, err := db.Exec(query, todoItemID)
+    var deletedTodoItem TodoItem
+    err := db.QueryRow(query, todoItemID).Scan(&deletedTodoItem.TodoItemID, &deletedTodoItem.TodoSetID, &deletedTodoItem.Content, &deletedTodoItem.Completed, &deletedTodoItem.Deleted, &deletedTodoItem.CreatedAt, &deletedTodoItem.UpdatedAt)
     if err != nil {
         log.Print(err)
-        return "", err
+        return deletedTodoItem, err
     }
 
-    return "TodoItem deleted successfully", nil
+    return deletedTodoItem, nil
 }

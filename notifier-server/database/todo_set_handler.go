@@ -155,17 +155,19 @@ func UpdateTodoSetBatch(todoSetBatch []TodoSet, db *sql.DB) ([]TodoSet, error) {
     return todoSetBatchResults, nil
 }   
 
-func DeleteTodoSet(todoSetID int, db *sql.DB) (string, error) {
+func DeleteTodoSet(todoSetID int, db *sql.DB) (TodoSet, error) {
     query := `
         UPDATE todo_set
         SET deleted = TRUE, updated_at = CURRENT_TIMESTAMP
         WHERE todo_set_id = $1
+        RETURNING todo_set_id, user_id, title, archived, deleted, created_at, updated_at
         `
-    _, err := db.Exec(query, todoSetID)
+    var deletedTodoSet TodoSet
+    err := db.QueryRow(query, todoSetID).Scan(&deletedTodoSet.TodoSetID, &deletedTodoSet.UserID, &deletedTodoSet.Title, &deletedTodoSet.Archived, &deletedTodoSet.Deleted, &deletedTodoSet.CreatedAt, &deletedTodoSet.UpdatedAt)
     if err != nil {
         log.Print(err)
-        return "", err
+        return deletedTodoSet, err
     }
 
-    return "TodoSet deleted successfully", nil
+    return deletedTodoSet, nil
 }

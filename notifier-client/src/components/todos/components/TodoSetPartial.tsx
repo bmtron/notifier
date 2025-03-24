@@ -1,6 +1,9 @@
 import { useDraggable, useDroppable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
+import { useState } from 'react'
 
+import { updateTodoItem } from '../../../services/api/updateTodoItem'
+import { TodoItem } from '../../../utils/models/TodoItem'
 import { TodoSetWithItems } from '../../../utils/models/TodoSetsWithItems'
 import styles from '../TodosMainView.module.css'
 
@@ -11,6 +14,8 @@ interface TodoSetProps {
   setNewItemContents: (newItemContents: Record<number, string>) => void
   handleToggleItem: (todoSetId: number, todoItemId: number) => void
   handleAddItem: (todoSetId: number) => void
+  handleUpdateTodoItem: (updatedItem: TodoItem) => Promise<boolean>
+  handleDeleteTodoItem: (todoItemId: number) => Promise<boolean>
 }
 
 export const TodoSetPartial = ({
@@ -20,7 +25,12 @@ export const TodoSetPartial = ({
   setNewItemContents,
   handleToggleItem,
   handleAddItem,
+  handleUpdateTodoItem,
+  handleDeleteTodoItem,
 }: TodoSetProps) => {
+  const [clickedItem, setClickedItem] = useState<TodoItem | null>(null)
+  const [itemClicked, setItemClicked] = useState<boolean>(false)
+  const [editingItem, setEditingItem] = useState<boolean>(false)
   const { isOver, setNodeRef: setDroppableRef } = useDroppable({
     id: set.todoSetId?.toString() ?? index.toString(),
   })
@@ -32,8 +42,6 @@ export const TodoSetPartial = ({
   } = useDraggable({
     id: set.todoSetId?.toString() ?? index.toString(),
   })
-
-  console.log(set.displayOrder)
 
   const style = transform
     ? {
@@ -48,6 +56,38 @@ export const TodoSetPartial = ({
     setDraggableRef(node)
   }
 
+  const handleItemClick = (item: TodoItem) => {
+    if (clickedItem && itemClicked && clickedItem.todoItemId === item.todoItemId) {
+      setEditingItem(true)
+      return
+    }
+
+    if (!editingItem) {
+      setClickedItem(item)
+      setItemClicked(true)
+      setTimeout(() => {
+        setItemClicked(false)
+      }, 200)
+    }
+  }
+
+  const handleUpdateItemContent = (item: TodoItem, content: string) => {
+    setClickedItem({
+      ...item,
+      content,
+    })
+  }
+
+  const handleSubmitItemEdit = async () => {
+    if (clickedItem) {
+      const success = await handleUpdateTodoItem(clickedItem)
+      if (success) {
+        setEditingItem(false)
+      } else {
+        alert('Could not update todo item. Please try again.')
+      }
+    }
+  }
   return (
     <div ref={setNodeRef} style={style} className={styles.todoSet}>
       <div className={styles.setTitleWrapper} {...attributes} {...listeners}>
@@ -57,6 +97,7 @@ export const TodoSetPartial = ({
       <div className={styles.items}>
         {set.items &&
           set.items.map((item, index) => {
+            if (item.deleted) return null
             return (
               <div key={index} className={styles.todoItem}>
                 <input
@@ -68,7 +109,47 @@ export const TodoSetPartial = ({
                     }
                   }}
                 />
-                <span className={item.completed ? styles.completed : ''}>{item.content}</span>
+                {editingItem && clickedItem?.todoItemId === item.todoItemId ? (
+                  <>
+                    <input
+                      type="text"
+                      className={styles.todoItemEditInput}
+                      value={clickedItem.content}
+                      onChange={(e) => {
+                        handleUpdateItemContent(item, e.target.value)
+                      }}
+                    />
+                    <button
+                      className={styles.button}
+                      onClick={() => {
+                        void handleSubmitItemEdit()
+                      }}
+                    >
+                      ✓
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <span
+                      className={item.completed ? styles.completed : ''}
+                      onClick={() => {
+                        handleItemClick(item)
+                      }}
+                    >
+                      {item.content}
+                    </span>
+                    <button
+                      className={styles.button}
+                      onClick={() => {
+                        if (item.todoItemId) {
+                          void handleDeleteTodoItem(item.todoItemId)
+                        }
+                      }}
+                    >
+                      X
+                    </button>
+                  </>
+                )}
               </div>
             )
           })}

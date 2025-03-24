@@ -77,18 +77,20 @@ func UpdateUser(userID int, updatedUser User, db *sql.DB) (User, error) {
     return updatedUser, nil
 }
 
-func DeleteUser(userID int, db *sql.DB) (string, error){
+func DeleteUser(userID int, db *sql.DB) (User, error){
     query := `
         DELETE FROM users
         WHERE user_id = $1
+        RETURNING user_id, username, email, password_hash, created_at, updated_at
         `
-    _, err := db.Exec(query, userID)
+    var deletedUser User
+    err := db.QueryRow(query, userID).Scan(&deletedUser.UserID, &deletedUser.Username, &deletedUser.Email, &deletedUser.Password, &deletedUser.CreatedAt, &deletedUser.UpdatedAt)
     if err != nil {
         log.Print(err)
-        return "", err
+        return deletedUser, err
     }
 
-    return "User deleted successfully", nil
+    return deletedUser, nil
 }
 
 func password_hasher(password string) string {

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { createTodoItem } from '../../services/api/createTodoItem'
 import { createTodoSet } from '../../services/api/createTodoSet'
+import { deleteTodoItem } from '../../services/api/deleteTodoItem'
 import { getTodoItems } from '../../services/api/getTodo'
 import { updateTodoItem } from '../../services/api/updateTodoItem'
 import { updateTodoSetBatch } from '../../services/api/updateTodoSets'
@@ -116,10 +117,50 @@ export const TodosMainView = () => {
     }
   }
 
+  const handleUpdateTodoItem = async (updatedItem: TodoItem): Promise<boolean> => {
+    const result = await updateTodoItem(updatedItem)
+    if (result.success && result.data) {
+      setTodoSets(
+        todoSets.map((set) =>
+          set.todoSetId === updatedItem.todoSetId
+            ? {
+                ...set,
+                items: set.items?.map((item) =>
+                  item.todoItemId === updatedItem.todoItemId ? updatedItem : item
+                ),
+              }
+            : set
+        )
+      )
+      return true
+    } else {
+      alert('Could not update todo item. Please try again.')
+      return false
+    }
+  }
+
+  const handleDeleteTodoItem = async (todoItemId: number): Promise<boolean> => {
+    const result = await deleteTodoItem(todoItemId)
+    if (result.success && result.data) {
+      const updatedTodoSets = todoSets.map((set) =>
+        set.todoSetId === result.data?.todoSetId
+          ? {
+              ...set,
+              items: set.items?.map((item) =>
+                item.todoItemId === result.data?.todoItemId ? result.data : item
+              ),
+            }
+          : set
+      )
+      setTodoSets(updatedTodoSets)
+      return true
+    }
+    return false
+  }
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event
 
-    if (!active || !over || active.id === over.id) return
+    if (!over || active.id === over.id) return
 
     const oldIndex = todoSets.findIndex((set) => set.todoSetId?.toString() === active.id)
     const newIndex = todoSets.findIndex((set) => set.todoSetId?.toString() === over.id)
@@ -164,8 +205,11 @@ export const TodosMainView = () => {
           </button>
         </div>
       </div>
-
-      <DndContext onDragEnd={handleDragEnd}>
+      <DndContext
+        onDragEnd={(event) => {
+          void handleDragEnd(event)
+        }}
+      >
         <div className={styles.todoSets}>
           {todoSets.map((set, index) => (
             <TodoSetPartial
@@ -178,6 +222,8 @@ export const TodosMainView = () => {
                 void handleToggleItem(todoSetId, todoItemId)
               }
               handleAddItem={(todoSetId) => void handleAddItem(todoSetId)}
+              handleUpdateTodoItem={(updatedItem) => handleUpdateTodoItem(updatedItem)}
+              handleDeleteTodoItem={(todoItemId) => handleDeleteTodoItem(todoItemId)}
             />
           ))}
         </div>
