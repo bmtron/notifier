@@ -90,6 +90,7 @@ func main() {
         api.GET("/todo_sets/:id", getHandler(database.GetTodoSet))
         api.POST("/todo_sets", createHandler(database.CreateTodoSet))
         api.PUT("/todo_sets/:id", updateHandler(database.UpdateTodoSet))
+        api.PUT("/todo_sets", updateBatchHandler(database.UpdateTodoSetBatch))
         api.DELETE("/todo_sets/:id", deleteHandler(database.DeleteTodoSet))
         api.GET("/todo_sets/user/:id", getTodoSetsHandler)
 
@@ -149,7 +150,7 @@ func loginHandler(c *gin.Context) {
     })
 }
 
-func deleteHandler(deleteFunc func(itemId int, db *sql.DB) (string, error)) gin.HandlerFunc {
+func deleteHandler[T any](deleteFunc func(itemId int, db *sql.DB) (T, error)) gin.HandlerFunc {
     return func(c *gin.Context) {
         itemId := c.Param("id")
         itemIdInt, err := strconv.Atoi(itemId)
@@ -159,14 +160,14 @@ func deleteHandler(deleteFunc func(itemId int, db *sql.DB) (string, error)) gin.
             c.IndentedJSON(http.StatusBadRequest, err)
             return
         }
-        value, dbErr := deleteFunc(itemIdInt, db)
+        result, dbErr := deleteFunc(itemIdInt, db)
         if (dbErr != nil) {
             log.Print(dbErr)
             c.IndentedJSON(http.StatusInternalServerError, dbErr)
             return
         }
        
-        c.IndentedJSON(http.StatusOK, gin.H{"message": value})
+        c.IndentedJSON(http.StatusOK, result)
     }
 }
 
@@ -209,6 +210,24 @@ func getHandler[T any](getFunc func(id int, db *sql.DB) (T, error)) gin.HandlerF
     }
 }
 
+func updateBatchHandler[T any](updateFunc func(models []T, db *sql.DB) ([]T, error)) gin.HandlerFunc {
+    return func(c *gin.Context) {
+        var models []T
+        if err := c.BindJSON(&models); err != nil {
+            log.Print(err)
+            c.IndentedJSON(http.StatusInternalServerError, err) 
+            return
+        }
+        updatedModels, dbErr := updateFunc(models, db)
+        if dbErr != nil {
+            log.Print(dbErr)
+            c.IndentedJSON(http.StatusInternalServerError, dbErr)   
+            return
+        }
+        c.IndentedJSON(http.StatusOK, updatedModels)
+    }
+}
+
 func updateHandler[T any](updateFunc func(id int, model T, db *sql.DB) (T, error)) gin.HandlerFunc {
     return func(c *gin.Context) {
             itemId := c.Param("id")
@@ -226,14 +245,14 @@ func updateHandler[T any](updateFunc func(id int, model T, db *sql.DB) (T, error
                 return
             }
         
-            todoSet, dbErr := updateFunc(itemIdInt, updatedItem, db)
+            itemResult, dbErr := updateFunc(itemIdInt, updatedItem, db)
             if dbErr != nil {
                 log.Print(dbErr)
                 c.IndentedJSON(http.StatusInternalServerError, dbErr)
                 return
             }
             
-            c.IndentedJSON(http.StatusOK, todoSet)
+            c.IndentedJSON(http.StatusOK, itemResult)
     }
 }
 
