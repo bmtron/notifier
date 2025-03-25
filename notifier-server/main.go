@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"notifier/database"
@@ -60,10 +61,18 @@ func main() {
 
     // Configure CORS
     config := cors.DefaultConfig()
-    config.AllowOrigins = []string{"http://localhost:5173"}
+    config.AllowOrigins = []string{"http://localhost:5173", 
+                                    "http://192.168.50.71:8081", 
+                                    "http://localhost:8081",
+                                    "https://notifier.bmtron.io",
+                                    "https://notifierapi.bmtron.io"}
     config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}
     config.AllowHeaders = []string{"Origin", "Content-Type", "Accept", "Authorization", "X-API-Key"}
     router.Use(cors.New(config))
+    router.Use(func(c *gin.Context) {
+        fmt.Printf("Request origin: %s\n", c.Request.Header.Get("Origin"))
+        c.Next()
+    })
 
     // Public auth routes (no protection needed)
     router.POST("/auth/login", apiKeyMiddleware(), loginHandler)

@@ -1,7 +1,6 @@
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../../../context/AuthContext'
 import { getTodoItems } from '../../../services/api/getTodo'
@@ -46,6 +45,7 @@ export const QuickTodos = () => {
   ])
   useEffect(() => {
     const fetchTodos = async () => {
+      console.log('fetching todos')
       if (!user?.id) return
       const todosResult = await getTodoItems(Number(user.id))
       if (todosResult.success && todosResult.data && todosResult.data.length > 0) {
@@ -107,21 +107,14 @@ export const QuickTodos = () => {
   )
 
   const carouselButton = (direction: 'left' | 'right') => {
+    let newIndex: number
     if (direction === 'left') {
-      if (todoCarouselIndex <= 0) {
-        setTodoCarouselIndex(todoSetsWithItems.length - 1)
-      } else {
-        setTodoCarouselIndex(todoCarouselIndex - 1)
-      }
+      newIndex = todoCarouselIndex <= 0 ? todoSetsWithItems.length - 1 : todoCarouselIndex - 1
+    } else {
+      newIndex = todoCarouselIndex >= todoSetsWithItems.length - 1 ? 0 : todoCarouselIndex + 1
     }
-    if (direction === 'right') {
-      if (todoCarouselIndex >= todoSetsWithItems.length - 1) {
-        setTodoCarouselIndex(0)
-      } else {
-        setTodoCarouselIndex(todoCarouselIndex + 1)
-      }
-    }
-    setSelectedTodoSetWithItems(todoSetsWithItems[todoCarouselIndex])
+    setTodoCarouselIndex(newIndex)
+    setSelectedTodoSetWithItems(todoSetsWithItems[newIndex])
   }
 
   return (

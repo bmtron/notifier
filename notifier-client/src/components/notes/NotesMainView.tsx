@@ -11,6 +11,7 @@ export const NotesMainView = () => {
   const { user } = useAuth()
   const [notes, setNotes] = useState<Note[]>([])
   const [newNoteTitle, setNewNoteTitle] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [isLoading, setIsLoading] = useState(true)
@@ -71,6 +72,13 @@ export const NotesMainView = () => {
     }, 500)
   }
 
+  const handleTextAreaInput = (e: React.ChangeEvent<HTMLTextAreaElement>, noteId: number) => {
+    const textarea = e.target
+    textarea.style.height = 'auto'
+    textarea.style.height = `${textarea.scrollHeight.toString()}px`
+    handleUpdateNote(noteId, textarea.value)
+  }
+
   if (isLoading) {
     return <div className={styles.loading}>Loading...</div>
   }
@@ -81,11 +89,20 @@ export const NotesMainView = () => {
         <div className={styles.createSet}>
           <input
             type="text"
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value)
+            }}
+            placeholder="Search notes..."
+            className={styles.input}
+          />
+          <input
+            type="text"
             value={newNoteTitle}
             onChange={(e) => {
               setNewNoteTitle(e.target.value)
             }}
-            placeholder="New note  title"
+            placeholder="New note title"
             className={styles.input}
           />
           <button onClick={() => void handleCreateNote()} className={styles.button}>
@@ -97,14 +114,17 @@ export const NotesMainView = () => {
         {notes.map((note, index) => (
           <div key={index} className={styles.note}>
             <h2 className={styles.noteTitle}>{note.title}</h2>
+            <div className={styles.noteDate}>
+              Created: {note.createdAt ? new Date(note.createdAt).toLocaleDateString() : 'Unknown'}
+            </div>
             <div className={styles.noteContent}>
               <textarea
                 value={note.content}
                 onChange={(e) => {
-                  handleUpdateNote(note.noteId ?? 0, e.target.value)
+                  handleTextAreaInput(e, note.noteId ?? 0)
                 }}
                 placeholder="Enter your note here..."
-                rows={4}
+                rows={1}
               />
             </div>
           </div>

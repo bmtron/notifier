@@ -1,11 +1,6 @@
 import { API_ENDPOINT_URL_DEBUG, API_KEY } from '../../utils/constants/constants'
 import { ErrorResponse } from '../../utils/helpers/ErrorResponse'
-import {
-  GetNotesResult,
-  Note,
-  NoteApiResponse,
-  transformNoteFromApi,
-} from '../../utils/models/Note'
+import { GetNotesResult, NoteApiResponse, transformNoteFromApi } from '../../utils/models/Note'
 
 export const getNotes = async (userId: number): Promise<GetNotesResult> => {
   const endpoint = API_ENDPOINT_URL_DEBUG + '/api/notes/user/' + userId.toString()
