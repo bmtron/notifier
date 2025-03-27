@@ -11,6 +11,5 @@ export const updateTodoSetBatch = async (
       error: 'Cannot update todo sets: todoSets missing todoSetId or batch is empty',
     }
   }
-  console.log('BATCH', todoSetBatch)
   return updateItemBatch<TodoSet>(todoSetBatch, '/api/todo_sets')
 }
