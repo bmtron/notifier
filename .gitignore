@@ -1,2 +1,4 @@
 .env
 /etc
+notifier-client/dist
+notifier-server/notifier-server

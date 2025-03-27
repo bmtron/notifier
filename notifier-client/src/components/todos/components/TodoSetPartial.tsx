@@ -2,7 +2,6 @@ import { useDraggable, useDroppable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { useState } from 'react'
 
-import { updateTodoItem } from '../../../services/api/updateTodoItem'
 import { TodoItem } from '../../../utils/models/TodoItem'
 import { TodoSetWithItems } from '../../../utils/models/TodoSetsWithItems'
 import styles from '../TodosMainView.module.css'

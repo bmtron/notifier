@@ -1,23 +1,8 @@
-import { useState } from 'react'
-
 import styles from './Dashboard.module.css'
 import { QuickTodos } from './helpers/QuickTodos'
-interface Note {
-  id: number
-  title: string
-  content: string
-  lastModified: Date
-}
-
-interface Reminder {
-  id: number
-  title: string
-  dueDate: Date
-  completed: boolean
-}
 
 const Dashboard = () => {
-  const [notes, setNotes] = useState<Note[]>([
+  const [notes] = [
     {
       id: 1,
       title: 'Meeting Notes',
@@ -30,9 +15,9 @@ const Dashboard = () => {
       content: 'New feature ideas for the next sprint...',
       lastModified: new Date(),
     },
-  ])
+  ]
 
-  const [reminders, setReminders] = useState<Reminder[]>([
+  const [reminders] = [
     {
       id: 1,
       title: 'Client Meeting',
@@ -45,7 +30,7 @@ const Dashboard = () => {
       dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       completed: false,
     },
-  ])
+  ]
 
   const showTodoModal = () => {
     // TODO: Implement Todo Modal...maybe?
@@ -90,34 +75,41 @@ const Dashboard = () => {
         <section className={styles.notesSection}>
           <h2>Recent Notes</h2>
           <div className={styles.notesList}>
-            {notes.map((note) => (
-              <div key={note.id} className={styles.noteCard}>
-                <h3>{note.title}</h3>
-                <p>{note.content.substring(0, 100)}...</p>
-                <span className={styles.timestamp}>
-                  Last modified: {note.lastModified.toLocaleDateString()}
-                </span>
-              </div>
-            ))}
+            {Array.isArray(notes) &&
+              notes.map(
+                (note: { id: number; title: string; content: string; lastModified: Date }) => (
+                  <div key={note.id} className={styles.noteCard}>
+                    <h3>{note.title}</h3>
+                    <p>{note.content.substring(0, 100)}...</p>
+                    <span className={styles.timestamp}>
+                      Last modified: {note.lastModified.toLocaleDateString()}
+                    </span>
+                  </div>
+                )
+              )}
           </div>
         </section>
 
         {/* Upcoming Reminders */}
+        {/* TODO: Implement QuickReminders similar to QuickTodos */}
         <section className={styles.remindersSection}>
           <h2>Upcoming Reminders</h2>
           <div className={styles.remindersList}>
-            {reminders.map((reminder) => (
-              <div key={reminder.id} className={styles.reminderCard}>
-                <h3>{reminder.title}</h3>
-                <p>Due: {reminder.dueDate.toLocaleDateString()}</p>
-                <div className={styles.reminderActions}>
-                  <button className={styles.completeButton}>
-                    {reminder.completed ? 'Completed' : 'Mark Complete'}
-                  </button>
-                  <button className={styles.editButton}>Edit</button>
-                </div>
-              </div>
-            ))}
+            {Array.isArray(reminders) &&
+              reminders.map(
+                (reminder: { id: number; title: string; dueDate: Date; completed: boolean }) => (
+                  <div key={reminder.id} className={styles.reminderCard}>
+                    <h3>{reminder.title}</h3>
+                    <p>Due: {reminder.dueDate.toLocaleDateString()}</p>
+                    <div className={styles.reminderActions}>
+                      <button className={styles.completeButton}>
+                        {reminder.completed ? 'Completed' : 'Mark Complete'}
+                      </button>
+                      <button className={styles.editButton}>Edit</button>
+                    </div>
+                  </div>
+                )
+              )}
           </div>
         </section>
       </div>
