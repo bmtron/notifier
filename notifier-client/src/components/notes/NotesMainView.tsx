@@ -10,8 +10,11 @@ import styles from './NotesMainView.module.css'
 export const NotesMainView = () => {
   const { user } = useAuth()
   const [notes, setNotes] = useState<Note[]>([])
+  const [clickedNote, setClickedNote] = useState<Note | null>(null)
   const [newNoteTitle, setNewNoteTitle] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
+  const [titleClicked, setTitleClicked] = useState<boolean>(false)
+  const [editingTitle, setEditingTitle] = useState<boolean>(false)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [isLoading, setIsLoading] = useState(true)
@@ -79,6 +82,44 @@ export const NotesMainView = () => {
     handleUpdateNote(noteId, textarea.value)
   }
 
+  const handleTitleClick = (noteId: number) => {
+    if (titleClicked && clickedNote && clickedNote.noteId === noteId) {
+      setEditingTitle(true)
+      return
+    }
+
+    if (!editingTitle) {
+      setTitleClicked(true)
+      setClickedNote(notes.find((n) => n.noteId === noteId) ?? null)
+      setTimeout(() => {
+        setTitleClicked(false)
+      }, 200)
+    }
+  }
+
+  const handleUpdateNoteTitle = async (noteId: number, title: string) => {
+    if (!clickedNote) return
+
+    const notesUpdated = notes.map((n) => (n.noteId === noteId ? { ...n, title } : n))
+    const noteToUpdate = notesUpdated.find((n) => n.noteId === noteId)
+    setNotes(noteToUpdate ? [...notesUpdated] : notes)
+    if (noteToUpdate) {
+      await updateNote(noteToUpdate)
+    }
+  }
+
+  const handleSubmitNoteTitleEdit = async (noteId: number, title: string) => {
+    if (!clickedNote) return
+
+    const notesUpdated = notes.map((n) => (n.noteId === noteId ? { ...n, title } : n))
+    const noteToUpdate = notesUpdated.find((n) => n.noteId === noteId)
+    if (noteToUpdate) {
+      await updateNote(noteToUpdate)
+    }
+    setEditingTitle(false)
+    setClickedNote(null)
+  }
+
   if (isLoading) {
     return <div className={styles.loading}>Loading...</div>
   }
@@ -113,7 +154,35 @@ export const NotesMainView = () => {
       <div className={styles.notes}>
         {notes.map((note, index) => (
           <div key={index} className={styles.note}>
-            <h2 className={styles.noteTitle}>{note.title}</h2>
+            <div
+              className={styles.noteTitleWrapper}
+              onClick={() => {
+                handleTitleClick(note.noteId ?? 0)
+              }}
+            >
+              {editingTitle && clickedNote && clickedNote.noteId === note.noteId ? (
+                <div className={styles.noteTitleEditWrapper}>
+                  <input
+                    type="text"
+                    className={styles.noteTitleInput}
+                    value={note.title}
+                    onChange={(e) => {
+                      void handleUpdateNoteTitle(note.noteId ?? 0, e.target.value)
+                    }}
+                  />
+                  <button
+                    className={styles.button}
+                    onClick={() => {
+                      void handleSubmitNoteTitleEdit(note.noteId ?? 0, note.title)
+                    }}
+                  >
+                    ✓
+                  </button>
+                </div>
+              ) : (
+                <h2 className={styles.noteTitle}>{note.title}</h2>
+              )}
+            </div>
             <div className={styles.noteDate}>
               Created: {note.createdAt ? new Date(note.createdAt).toLocaleDateString() : 'Unknown'}
             </div>

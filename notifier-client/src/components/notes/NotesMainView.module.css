@@ -75,6 +75,20 @@
   font-size: 1.25rem;
 }
 
+.noteTitleInput {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 1rem;
+  color: black;
+}
+
+.noteTitleEditWrapper {
+  display: flex;
+  gap: 0.5rem;
+}
+
 .noteDate {
   font-size: 0.875rem;
   color: #718096;

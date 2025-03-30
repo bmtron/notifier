@@ -15,6 +15,7 @@ interface TodoSetProps {
   handleAddItem: (todoSetId: number) => void
   handleUpdateTodoItem: (updatedItem: TodoItem) => Promise<boolean>
   handleDeleteTodoItem: (todoItemId: number) => Promise<boolean>
+  handleUpdateTodoSetTitle: (todoSetId: number, title: string) => Promise<boolean>
 }
 
 export const TodoSetPartial = ({
@@ -26,10 +27,14 @@ export const TodoSetPartial = ({
   handleAddItem,
   handleUpdateTodoItem,
   handleDeleteTodoItem,
+  handleUpdateTodoSetTitle,
 }: TodoSetProps) => {
   const [clickedItem, setClickedItem] = useState<TodoItem | null>(null)
+
   const [itemClicked, setItemClicked] = useState<boolean>(false)
+  const [titleClicked, setTitleClicked] = useState<boolean>(false)
   const [editingItem, setEditingItem] = useState<boolean>(false)
+  const [editingTitle, setEditingTitle] = useState<boolean>(false)
   const { isOver, setNodeRef: setDroppableRef } = useDroppable({
     id: set.todoSetId?.toString() ?? index.toString(),
   })
@@ -69,6 +74,19 @@ export const TodoSetPartial = ({
       }, 200)
     }
   }
+  const handleTitleClick = () => {
+    if (titleClicked) {
+      setEditingTitle(true)
+      return
+    }
+
+    if (!editingTitle) {
+      setTitleClicked(true)
+      setTimeout(() => {
+        setTitleClicked(false)
+      }, 200)
+    }
+  }
 
   const handleUpdateItemContent = (item: TodoItem, content: string) => {
     setClickedItem({
@@ -87,11 +105,48 @@ export const TodoSetPartial = ({
       }
     }
   }
+  const handleSubmitTitleEdit = async () => {
+    const success = await handleUpdateTodoSetTitle(set.todoSetId ?? 0, set.title)
+    if (success) {
+      setEditingTitle(false)
+    } else {
+      alert('Could not update todo set title. Please try again.')
+    }
+  }
+
   return (
     <div ref={setNodeRef} style={style} className={styles.todoSet}>
-      <div className={styles.setTitleWrapper} {...attributes} {...listeners}>
-        <h2 className={styles.setTitle}>{set.title}</h2>
-        <div className={styles.dragHandle}>⋮⋮</div>
+      <div
+        className={styles.setTitleWrapper}
+        onClick={() => {
+          handleTitleClick()
+        }}
+      >
+        {editingTitle ? (
+          <>
+            <input
+              type="text"
+              className={styles.todoSetTitleEditInput}
+              value={set.title}
+              onChange={(e) => {
+                void handleUpdateTodoSetTitle(set.todoSetId ?? 0, e.target.value)
+              }}
+            />
+            <button
+              className={styles.button}
+              onClick={() => {
+                void handleSubmitTitleEdit()
+              }}
+            >
+              ✓
+            </button>
+          </>
+        ) : (
+          <h2 className={styles.setTitle}>{set.title}</h2>
+        )}
+        <div className={styles.dragHandle} {...attributes} {...listeners}>
+          ⋮⋮
+        </div>
       </div>
       <div className={styles.items}>
         {set.items &&

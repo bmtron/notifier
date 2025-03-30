@@ -139,6 +139,35 @@ export const TodosMainView = () => {
     }
   }
 
+  const handleUpdateTodoSetTitle = async (todoSetId: number, title: string): Promise<boolean> => {
+    const targetTodoSetWithItems = todoSets.find((set) => set.todoSetId === todoSetId)
+
+    if (!targetTodoSetWithItems) {
+      alert('Could not update todo set title. Please try again.')
+      return false
+    }
+
+    const targetTodoSet: TodoSet = {
+      todoSetId: todoSetId,
+      userId: targetTodoSetWithItems.userId,
+      title: title,
+      archived: targetTodoSetWithItems.archived,
+      deleted: targetTodoSetWithItems.deleted,
+      createdAt: targetTodoSetWithItems.createdAt,
+      updatedAt: targetTodoSetWithItems.updatedAt ?? null,
+      displayOrder: targetTodoSetWithItems.displayOrder,
+    }
+    const result = await updateTodoSetBatch([targetTodoSet])
+    if (result.success && result.data) {
+      targetTodoSetWithItems.title = title
+      setTodoSets(
+        todoSets.map((set) => (set.todoSetId === todoSetId ? targetTodoSetWithItems : set))
+      )
+      return true
+    }
+    return false
+  }
+
   const handleDeleteTodoItem = async (todoItemId: number): Promise<boolean> => {
     const result = await deleteTodoItem(todoItemId)
     if (result.success && result.data) {
@@ -224,6 +253,9 @@ export const TodosMainView = () => {
               handleAddItem={(todoSetId) => void handleAddItem(todoSetId)}
               handleUpdateTodoItem={(updatedItem) => handleUpdateTodoItem(updatedItem)}
               handleDeleteTodoItem={(todoItemId) => handleDeleteTodoItem(todoItemId)}
+              handleUpdateTodoSetTitle={(todoSetId, title) =>
+                handleUpdateTodoSetTitle(todoSetId, title)
+              }
             />
           ))}
         </div>
