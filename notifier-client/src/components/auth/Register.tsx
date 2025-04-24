@@ -1,16 +1,16 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
-import { createUser } from '../../services/api/createUser'
-import { User } from '../../utils/models/User'
+import { createUser } from '../../services/api/createUser';
+import { User } from '../../utils/models/User';
 
-import styles from './Login.module.css'
+import styles from './Login.module.css';
 
 const Register = () => {
-  const [email, setEmail] = useState('')
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const navigate = useNavigate()
+  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async () => {
     const user: User = {
@@ -20,17 +20,17 @@ const Register = () => {
       userId: null,
       createdAt: null,
       updatedAt: null,
-    }
+    };
 
-    const response = await createUser(user)
+    const response = await createUser(user);
 
     if (response.success && response.data) {
-      await navigate('/login')
+      await navigate('/login');
     } else {
-      alert(response.error)
-      console.error('User creation failed:', response.error)
+      alert(response.error);
+      console.error('User creation failed:', response.error);
     }
-  }
+  };
 
   return (
     <div className={styles.container}>
@@ -40,19 +40,19 @@ const Register = () => {
 
         <form
           onSubmit={(e) => {
-            e.preventDefault()
-            void handleSubmit()
+            e.preventDefault();
+            void handleSubmit();
           }}
           className={styles.form}
         >
           <div className={styles.inputGroup}>
             <input
-              type="email"
+              type='email'
               value={email}
               onChange={(e) => {
-                setEmail(e.target.value)
+                setEmail(e.target.value);
               }}
-              placeholder="Email"
+              placeholder='Email'
               required
               className={styles.input}
             />
@@ -60,12 +60,12 @@ const Register = () => {
 
           <div className={styles.inputGroup}>
             <input
-              type="text"
+              type='text'
               value={username}
               onChange={(e) => {
-                setUsername(e.target.value)
+                setUsername(e.target.value);
               }}
-              placeholder="Username"
+              placeholder='Username'
               required
               className={styles.input}
             />
@@ -73,31 +73,31 @@ const Register = () => {
 
           <div className={styles.inputGroup}>
             <input
-              type="password"
+              type='password'
               value={password}
               onChange={(e) => {
-                setPassword(e.target.value)
+                setPassword(e.target.value);
               }}
-              placeholder="Password"
+              placeholder='Password'
               required
               className={styles.input}
             />
           </div>
 
-          <button type="submit" className={styles.button}>
+          <button type='submit' className={styles.button}>
             Register
           </button>
         </form>
 
         <p className={styles.footer}>
           Already have an account?{' '}
-          <Link to="/login" className={styles.link}>
+          <Link to='/login' className={styles.link}>
             Sign in
           </Link>
         </p>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Register
+export default Register;

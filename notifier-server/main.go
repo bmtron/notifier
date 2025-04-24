@@ -108,6 +108,13 @@ func main() {
         api.POST("/todo_items", createHandler(database.CreateTodoItem))
         api.PUT("/todo_items/:id", updateHandler(database.UpdateTodoItem))
         api.DELETE("/todo_items/:id", deleteHandler(database.DeleteTodoItem))
+
+        // Reminders
+        api.GET("/reminders/:id", getHandler(database.GetReminder))
+        api.GET("/reminders/user/:id", getRemindersByUserIdHandler)
+        api.POST("/reminders", createHandler(database.CreateReminder))
+        api.PUT("/reminders/:id", updateHandler(database.UpdateReminder))
+        api.DELETE("/reminders/:id", deleteHandler(database.DeleteReminder))
     }
 
     router.Run("0.0.0.0:8008")
@@ -239,7 +246,7 @@ func updateBatchHandler[T any](updateFunc func(models []T, db *sql.DB) ([]T, err
 
 func updateHandler[T any](updateFunc func(id int, model T, db *sql.DB) (T, error)) gin.HandlerFunc {
     return func(c *gin.Context) {
-            itemId := c.Param("id")
+            itemId := c.Param("id")n
             itemIdInt, err := strconv.Atoi(itemId)
             if err != nil {
                 log.Print(err)
@@ -337,3 +344,15 @@ func getNotesByUserIdHandler(c *gin.Context) {
 
     c.JSON(http.StatusOK, notes)
 }
+
+func getRemindersByUserIdHandler(c *gin.Context) {
+    userID := c.GetInt("user_id")
+    reminders, err := database.GetRemindersByUserID(userID, db)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch reminders"})
+        return
+    }
+
+    c.JSON(http.StatusOK, reminders)
+}
+

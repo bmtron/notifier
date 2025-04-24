@@ -1,12 +1,12 @@
 export interface Notification {
-  id: string
-  title: string
-  message: string
-  createdAt: Date
-  updatedAt: Date
-  userId: string
-  isRead: boolean
-  type: NotificationType
+  id: string;
+  title: string;
+  message: string;
+  createdAt: Date;
+  updatedAt: Date;
+  userId: string;
+  isRead: boolean;
+  type: NotificationType;
 }
 
 export enum NotificationType {
@@ -17,8 +17,8 @@ export enum NotificationType {
 
 // Example of extending the base interface
 export interface SystemNotification extends Notification {
-  type: NotificationType.SYSTEM
-  priority: 'HIGH' | 'MEDIUM' | 'LOW'
+  type: NotificationType.SYSTEM;
+  priority: 'HIGH' | 'MEDIUM' | 'LOW';
 }
 
 // lol idk what this is, I think this is just some sort of AI hallucination

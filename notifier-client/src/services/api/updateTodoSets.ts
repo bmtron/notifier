@@ -1,6 +1,6 @@
-import { TodoSet, UpdateTodoSetBatchResult } from '../../utils/models/TodoSetsWithItems'
+import { TodoSet, UpdateTodoSetBatchResult } from '../../utils/models/TodoSetsWithItems';
 
-import { updateItemBatch } from './updateItemBatch'
+import { updateItemBatch } from './updateItemBatch';
 
 export const updateTodoSetBatch = async (
   todoSetBatch: TodoSet[]
@@ -9,7 +9,7 @@ export const updateTodoSetBatch = async (
     return {
       success: false,
       error: 'Cannot update todo sets: todoSets missing todoSetId or batch is empty',
-    }
+    };
   }
-  return updateItemBatch<TodoSet>(todoSetBatch, '/api/todo_sets')
-}
+  return updateItemBatch<TodoSet>(todoSetBatch, '/api/todo_sets');
+};

@@ -1,7 +1,7 @@
-import { User, UserResponse, CreateUserResult } from '../../utils/models/User'
+import { User, UserResponse, CreateUserResult } from '../../utils/models/User';
 
-import { createItem } from './createItem'
+import { createItem } from './createItem';
 
 export const createUser = async (user: User): Promise<CreateUserResult> => {
-  return createItem<UserResponse>(user, '/api/users')
-}
+  return createItem<UserResponse>(user, '/api/users');
+};
