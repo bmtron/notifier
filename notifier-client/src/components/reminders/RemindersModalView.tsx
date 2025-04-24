@@ -16,6 +16,7 @@ export const RemindersModalView = ({
   handleSubmit,
   onClose,
 }: RemindersModalViewProps) => {
+  const repeatOptions = ['Once', 'Daily', 'Weekly', 'Monthly', 'Yearly'];
   const [remindersProps, setRemindersProps] = useState<Reminder[]>(reminders);
   const [newReminder, setNewReminder] = useState<Reminder>({
     reminderId: null,
@@ -45,6 +46,9 @@ export const RemindersModalView = ({
       <div
         className={styles.modal}
         onClick={(e) => {
+          e.stopPropagation();
+        }}
+        onKeyDown={(e) => {
           e.stopPropagation();
         }}
       >
@@ -93,19 +97,41 @@ export const RemindersModalView = ({
             />
           </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor='date' className={styles.label}>
-              Date and Time
-            </label>
-            <DatePicker
-              selected={newReminder.expiration}
-              onChange={(date: Date | null) => {
-                setNewReminder({ ...newReminder, expiration: date || new Date() });
-              }}
-              showTimeSelect
-              dateFormat='MMMM d, yyyy h:mm aa'
-              className={styles.input}
-            />
+          <div className={styles.datePickerContainer}>
+            <div className={styles.formGroup}>
+              <label htmlFor='repeat' className={styles.label}>
+                Repeat
+              </label>
+
+              <select
+                id='repeat'
+                className={styles.select}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                  setNewReminder({ ...newReminder, repeatPattern: e.target.value });
+                }}
+              >
+                {repeatOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className={styles.formGroup}>
+              <label htmlFor='date' className={styles.label}>
+                Date and Time
+              </label>
+              <DatePicker
+                popperClassName={styles.datePickerPopper}
+                selected={newReminder.expiration}
+                onChange={(date: Date | null) => {
+                  setNewReminder({ ...newReminder, expiration: date || new Date() });
+                }}
+                showTimeSelect
+                dateFormat='MMMM d, yyyy h:mm aa'
+                className={styles.input}
+              />
+            </div>
           </div>
 
           <div className={styles.modalFooter}>

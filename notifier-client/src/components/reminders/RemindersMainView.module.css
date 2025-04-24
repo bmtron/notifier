@@ -55,6 +55,11 @@
   transition: all 0.2s;
 }
 
+.datePickerPopper {
+  z-index: 1000;
+  left: 4rem;
+}
+
 .input:focus {
   outline: none;
   border-color: #4299e1;
@@ -212,4 +217,22 @@
 
 .modalButtonSecondary:hover {
   background-color: #cbd5e0;
+}
+
+.select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 1rem;
+  color: black;
+}
+
+.datePickerContainer {
+  display: flex;
+  gap: 1rem;
+}
+
+.datePickerContainer > div {
+  width: 50%;
 }
