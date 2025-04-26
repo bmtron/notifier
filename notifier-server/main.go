@@ -59,6 +59,8 @@ func main() {
     db = database.SetupDb()
     router := gin.Default()
 
+    router.Use(gin.Logger())
+
     // Configure CORS
     config := cors.DefaultConfig()
     config.AllowOrigins = []string{"http://localhost:5173", 
@@ -116,6 +118,8 @@ func main() {
         api.PUT("/reminders/:id", updateHandler(database.UpdateReminder))
         api.DELETE("/reminders/:id", deleteHandler(database.DeleteReminder))
     }
+
+    log.Print("Running now...")
 
     router.Run("0.0.0.0:8008")
 }
@@ -246,7 +250,7 @@ func updateBatchHandler[T any](updateFunc func(models []T, db *sql.DB) ([]T, err
 
 func updateHandler[T any](updateFunc func(id int, model T, db *sql.DB) (T, error)) gin.HandlerFunc {
     return func(c *gin.Context) {
-            itemId := c.Param("id")n
+            itemId := c.Param("id")
             itemIdInt, err := strconv.Atoi(itemId)
             if err != nil {
                 log.Print(err)

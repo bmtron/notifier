@@ -1,0 +1,95 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  border: none;
+  padding: 0;
+  cursor: default;
+}
+
+.modal {
+  background: white;
+  border-radius: 10px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.modalTitle {
+  margin: 0;
+  color: #2d3748;
+  font-size: 1.5rem;
+}
+
+.modalClose {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #718096;
+  cursor: pointer;
+  padding: 0.5rem;
+  line-height: 1;
+}
+
+.modalClose:hover {
+  color: #2d3748;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.modalButton {
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modalButtonPrimary {
+  composes: modalButton;
+  background-color: #4299e1;
+  color: white;
+  border: none;
+}
+
+.modalButtonPrimary:hover {
+  background-color: #3182ce;
+}
+
+.modalButtonSecondary {
+  composes: modalButton;
+  background-color: #e2e8f0;
+  color: #4a5568;
+  border: none;
+}
+
+.modalButtonSecondary:hover {
+  background-color: #cbd5e0;
+}
+
+.modalContent {
+  color: black;
+}

@@ -2,7 +2,10 @@ import { useState } from 'react';
 import DatePicker from 'react-datepicker';
 
 import 'react-datepicker/dist/react-datepicker.css';
+import { useAuth } from '../../context/AuthContext';
+import { createReminder } from '../../services/api/createReminder';
 import type { Reminder } from '../../utils/models/Reminder';
+import { ErrorModal } from '../common/ErrorModal';
 
 import styles from './RemindersMainView.module.css';
 import { RemindersModalView } from './RemindersModalView';
@@ -10,6 +13,9 @@ import { RemindersModalView } from './RemindersModalView';
 export const RemindersMainView = () => {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [showModal, setShowModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorModalTitle, setErrorModalTitle] = useState('');
+  const [errorModalContent, setErrorModalContent] = useState('');
   const [newReminder, setNewReminder] = useState<Reminder>({
     reminderId: null,
     userId: 0,
@@ -24,23 +30,36 @@ export const RemindersMainView = () => {
     updatedAt: null,
   });
 
-  const handleSubmit = (reminder: Reminder) => {
+  const handleSubmit = async (reminder: Reminder) => {
     setReminders([...reminders, reminder]);
-    setNewReminder({
-      reminderId: null,
-      userId: 0,
-      title: '',
-      notes: '',
-      expiration: new Date(),
-      repeated: false,
-      repeatPattern: '',
-      completed: false,
-      deleted: false,
-      createdAt: null,
-      updatedAt: null,
-    });
+    const result = await createReminder(reminder);
+    if (!result.success) {
+      setShowErrorModal(true);
+      setErrorModalTitle('Error Saving Reminder');
+      const resultErrorMessage: string = result.error
+        ? result.error
+        : 'No further details available';
+      setErrorModalContent(`Details: ${resultErrorMessage}`);
+    } else {
+      setNewReminder({
+        reminderId: null,
+        userId: 0,
+        title: '',
+        notes: '',
+        expiration: new Date(),
+        repeated: false,
+        repeatPattern: '',
+        completed: false,
+        deleted: false,
+        createdAt: null,
+        updatedAt: null,
+      });
+    }
   };
 
+  const hideErrorModalHandler = () => {
+    setShowErrorModal(false);
+  };
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -60,6 +79,13 @@ export const RemindersMainView = () => {
           onClose={() => {
             setShowModal(false);
           }}
+        />
+      )}
+      {showErrorModal && (
+        <ErrorModal
+          title={errorModalTitle}
+          message={errorModalContent}
+          hideModal={hideErrorModalHandler}
         />
       )}
       <div className={styles.remindersList}>

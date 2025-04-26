@@ -1,4 +1,4 @@
-import { User, UserResponse, CreateUserResult } from '../../utils/models/User';
+import type { User, UserResponse, CreateUserResult } from '../../utils/models/User';
 
 import { createItem } from './createItem';
 

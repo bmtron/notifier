@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import DatePicker from 'react-datepicker';
 
+import { useAuth } from '../../context/AuthContext';
 import type { Reminder } from '../../utils/models/Reminder';
 
 import styles from './RemindersMainView.module.css';
 
 interface RemindersModalViewProps {
   reminders: Reminder[];
-  handleSubmit: (reminder: Reminder) => void;
+  handleSubmit: (reminder: Reminder) => Promise<void>;
   onClose: () => void;
 }
 
@@ -16,11 +17,12 @@ export const RemindersModalView = ({
   handleSubmit,
   onClose,
 }: RemindersModalViewProps) => {
+  const { user } = useAuth();
   const repeatOptions = ['Once', 'Daily', 'Weekly', 'Monthly', 'Yearly'];
   const [remindersProps, setRemindersProps] = useState<Reminder[]>(reminders);
   const [newReminder, setNewReminder] = useState<Reminder>({
     reminderId: null,
-    userId: 0,
+    userId: Number(user?.id), // just default to the current user id
     title: '',
     notes: '',
     expiration: new Date(),
@@ -62,7 +64,7 @@ export const RemindersModalView = ({
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            handleSubmit(newReminder);
+            void handleSubmit(newReminder);
             onClose();
           }}
         >

@@ -1,9 +1,10 @@
 import { API_ENDPOINT_URL_DEBUG, API_KEY } from '../../utils/constants/constants';
-import { ErrorResponse } from '../../utils/helpers/ErrorResponse';
-import { Note, NoteApiResponse } from '../../utils/models/Note';
-import { TodoItem, TodoItemApiResponse } from '../../utils/models/TodoItem';
-import { TodoSet, TodoSetApiResponse } from '../../utils/models/TodoSetsWithItems';
-import { User } from '../../utils/models/User';
+import type { ErrorResponse } from '../../utils/helpers/ErrorResponse';
+import type { Note, NoteApiResponse } from '../../utils/models/Note';
+import type { Reminder, ReminderApiResponse } from '../../utils/models/Reminder';
+import type { TodoItem, TodoItemApiResponse } from '../../utils/models/TodoItem';
+import type { TodoSet, TodoSetApiResponse } from '../../utils/models/TodoSetsWithItems';
+import type { User } from '../../utils/models/User';
 
 type AllowedItems =
   | Note
@@ -12,6 +13,8 @@ type AllowedItems =
   | TodoItemApiResponse
   | NoteApiResponse
   | User
+  | Reminder
+  | ReminderApiResponse
   | TodoSetApiResponse;
 
 export interface CreateItemResult<T> {
