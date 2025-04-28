@@ -28,6 +28,7 @@ export type ReminderState = {
 export type UserState = {
   userId: number;
   isAuthorized: boolean;
+  authToken: string;
 };
 
 export type RootState = {
@@ -46,6 +47,7 @@ const rootState: RootState = {
   user: {
     userId: 0,
     isAuthorized: false,
+    authToken: '',
   },
   todos: {
     newTodoSet: null,

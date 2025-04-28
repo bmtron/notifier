@@ -21,6 +21,11 @@ const theme = {
     placeholder: colorScheme.tokyoLaserBlueDulled,
   },
 };
+
+export type AppTheme = typeof theme;
+
+export const useAppTheme = () => theme;
+
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
@@ -33,7 +38,7 @@ export default function RootLayout() {
                 statusBarBackgroundColor: theme.colors.background,
               }}
             >
-              <Stack.Screen name='(tabs)' />
+              <Stack.Screen name='(main)' />
             </Stack>
           </GestureHandlerRootView>
         </PaperProvider>

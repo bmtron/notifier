@@ -66,6 +66,8 @@ func main() {
     config.AllowOrigins = []string{"http://localhost:5173", 
                                     "http://192.168.50.71:8081", 
                                     "http://localhost:8081",
+                                    "http://192.168.50.108",
+                                    "*",
                                     "https://notifier.bmtron.io",
                                     "https://notifierapi.bmtron.io"}
     config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}

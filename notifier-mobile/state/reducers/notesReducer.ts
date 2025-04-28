@@ -1,6 +1,5 @@
 import { Note } from '@/models/Note';
 import { NoteState } from '../rootState';
-import { UnknownAction } from '@reduxjs/toolkit';
 
 const initialNoteState: NoteState = {
   newNote: null,
@@ -18,7 +17,21 @@ interface AddActiveNoteAction {
   payload: Note;
 }
 
-export type NoteAction = SetNewNoteAction | AddActiveNoteAction;
+interface AddArchivedNoteAction {
+  type: 'ADD_ARCHIVED_NOTE_ACTION';
+  payload: Note;
+}
+
+interface RemoveActiveNoteAction {
+  type: 'REMOVE_ACTIVE_NOTE_ACTION';
+  payload: number;
+}
+
+export type NoteAction =
+  | SetNewNoteAction
+  | AddActiveNoteAction
+  | AddArchivedNoteAction
+  | RemoveActiveNoteAction;
 
 const notesReducer = (noteState: NoteState = initialNoteState, action: NoteAction) => {
   switch (action.type) {
@@ -31,6 +44,16 @@ const notesReducer = (noteState: NoteState = initialNoteState, action: NoteActio
       return {
         ...noteState,
         activeNotes: [...noteState.activeNotes, action.payload],
+      };
+    case 'ADD_ARCHIVED_NOTE_ACTION':
+      return {
+        ...noteState,
+        archivedNotes: [...noteState.archivedNotes, action.payload],
+      };
+    case 'REMOVE_ACTIVE_NOTE_ACTION':
+      return {
+        ...noteState,
+        activeNotes: noteState.activeNotes.filter((n) => n.noteId !== action.payload),
       };
     default:
       return noteState;
