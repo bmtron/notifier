@@ -1,5 +1,5 @@
-import styles from './Dashboard.module.css'
-import { QuickTodos } from './helpers/QuickTodos'
+import styles from './Dashboard.module.css';
+import { QuickTodos } from './helpers/QuickTodos';
 
 const Dashboard = () => {
   const [notes] = [
@@ -15,7 +15,7 @@ const Dashboard = () => {
       content: 'New feature ideas for the next sprint...',
       lastModified: new Date(),
     },
-  ]
+  ];
 
   const [reminders] = [
     {
@@ -30,11 +30,11 @@ const Dashboard = () => {
       dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       completed: false,
     },
-  ]
+  ];
 
   const showTodoModal = () => {
     // TODO: Implement Todo Modal...maybe?
-  }
+  };
 
   return (
     <div className={styles.dashboard}>
@@ -55,7 +55,7 @@ const Dashboard = () => {
             <button
               className={styles.actionButton}
               onClick={() => {
-                showTodoModal()
+                showTodoModal();
               }}
             >
               Add Todo
@@ -114,7 +114,7 @@ const Dashboard = () => {
         </section>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Dashboard
+export default Dashboard;

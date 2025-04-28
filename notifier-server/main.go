@@ -59,6 +59,8 @@ func main() {
     db = database.SetupDb()
     router := gin.Default()
 
+    router.Use(gin.Logger())
+
     // Configure CORS
     config := cors.DefaultConfig()
     config.AllowOrigins = []string{"http://localhost:5173", 
@@ -108,7 +110,16 @@ func main() {
         api.POST("/todo_items", createHandler(database.CreateTodoItem))
         api.PUT("/todo_items/:id", updateHandler(database.UpdateTodoItem))
         api.DELETE("/todo_items/:id", deleteHandler(database.DeleteTodoItem))
+
+        // Reminders
+        api.GET("/reminders/:id", getHandler(database.GetReminder))
+        api.GET("/reminders/user/:id", getRemindersByUserIdHandler)
+        api.POST("/reminders", createHandler(database.CreateReminder))
+        api.PUT("/reminders/:id", updateHandler(database.UpdateReminder))
+        api.DELETE("/reminders/:id", deleteHandler(database.DeleteReminder))
     }
+
+    log.Print("Running now...")
 
     router.Run("0.0.0.0:8008")
 }
@@ -337,3 +348,15 @@ func getNotesByUserIdHandler(c *gin.Context) {
 
     c.JSON(http.StatusOK, notes)
 }
+
+func getRemindersByUserIdHandler(c *gin.Context) {
+    userID := c.GetInt("user_id")
+    reminders, err := database.GetRemindersByUserID(userID, db)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch reminders"})
+        return
+    }
+
+    c.JSON(http.StatusOK, reminders)
+}
+
