@@ -10,6 +10,7 @@ import { useDispatch } from 'react-redux';
 import { UserActions } from '@/state/reducers/userReducer';
 import { AppDispatch } from '@/state/defaultStore';
 import { useRouter } from 'expo-router';
+import { UserState } from '@/state/rootState';
 
 export default function Index() {
   const theme = useAppTheme();
@@ -22,9 +23,13 @@ export default function Index() {
   const handleLoginClick = async () => {
     const result = await submitUserLogin(userEmail, userPassword);
     if (result.success) {
-      console.log(result);
-      dispatch({ type: UserActions.SetUserStateFull, payload: result.loginResponse });
-      router.push('/(main)');
+      const userPayload: UserState = {
+        userId: result.loginResponse?.user.ID as number,
+        isAuthorized: true,
+        authToken: result.loginResponse?.token === undefined ? '' : result.loginResponse?.token,
+      };
+      dispatch({ type: UserActions.SetUserStateFull, payload: userPayload });
+      router.push('/(main)/(tabs)');
     } else {
       setShouldShowErrorModal(true);
       console.log('Error status: ', result.errorResponse?.status);
@@ -60,7 +65,7 @@ export default function Index() {
           <TextInput
             style={styles.textInputContent}
             placeholder='Enter your email'
-            textContentType='username'
+            textContentType='emailAddress'
             label='Email'
             mode='outlined'
             value={userEmail}

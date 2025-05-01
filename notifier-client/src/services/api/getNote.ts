@@ -1,9 +1,10 @@
 import { API_ENDPOINT_URL_DEBUG, API_KEY } from '../../utils/constants/constants';
-import { ErrorResponse } from '../../utils/helpers/ErrorResponse';
-import { GetNotesResult, NoteApiResponse, transformNoteFromApi } from '../../utils/models/Note';
+import type { ErrorResponse } from '../../utils/helpers/ErrorResponse';
+import type { GetNotesResult, NoteApiResponse } from '../../utils/models/Note';
+import { transformNoteFromApi } from '../../utils/models/Note';
 
 export const getNotes = async (userId: number): Promise<GetNotesResult> => {
-  const endpoint = API_ENDPOINT_URL_DEBUG + '/api/notes/user/' + userId.toString();
+  const endpoint = `${API_ENDPOINT_URL_DEBUG}/api/notes/user/${userId.toString()}`;
 
   try {
     const token = localStorage.getItem('token');
